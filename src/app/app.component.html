@@ -1,0 +1,13 @@
+<div>
+  <label for="cardTheme">Choose Card theme</label>
+  <select [(ngModel)]="cardTheme" (ngModelChange)="changeTheme({theme : $event})" name="cardTheme" id="cardTheme">
+    <option *ngFor="let theme of ['default','alternate']" [ngValue]="theme">
+      {{theme}}
+    </option>
+  </select>
+</div>
+<div class="deck">
+  <div *ngFor="let card of cards | async">
+    <app-card [cardUrl]="[cardTheme,card.src]"></app-card>
+  </div>
+</div>

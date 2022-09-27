@@ -1,2 +1,3 @@
-# angular-cards
-Пасьянс, написанный на angular
+# AngularCards
+
+Пасьянс, написаный на Angular
