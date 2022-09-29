@@ -1,6 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
-import {DomSanitizer, SafeResourceUrl} from "@angular/platform-browser";
-import {SupabaseService} from "../supabase.service";
+import {GameService} from "../game.service";
+import {Card} from "../Card";
 
 @Component({
   selector: 'app-card',
@@ -8,36 +8,33 @@ import {SupabaseService} from "../supabase.service";
   styleUrls: ['./card.component.scss']
 })
 export class CardComponent implements OnInit {
-  card?: SafeResourceUrl | undefined
 
-  @Input() set cardUrl(urlArr: string[]) {
-    if (urlArr) {
-      const url = urlArr.join('/')
-      this.downloadImage(url)
-    }
+  @Input() cardObject: Card | undefined
+  @Input() index: number | undefined
+
+
+  constructor(private readonly game: GameService) {
   }
 
-
-  constructor(
-    private readonly supabase: SupabaseService,
-    private readonly dom: DomSanitizer
-  ) {
-  }
-
-  async downloadImage(path: string) {
-    try {
-      const {data} = await this.supabase.downloadImage(path)
-      if (data instanceof Blob) {
-        this.card = this.dom.bypassSecurityTrustResourceUrl(
-          URL.createObjectURL(data)
-        )
-      }
-    } catch ({message}) {
-      console.error(`Error downloading image: `, message)
-    }
+  getClass() {
+    let cls = `card-${this.index}`
+    cls += ` ${this.cardObject?.stack.slice(0, this.cardObject?.stack.indexOf('-'))}`
+    return cls
   }
 
   ngOnInit(): void {
   }
 
+  onDragStart() {
+    if (!this.cardObject) return
+    const stackArr = this.game.cards!.filter(c => c.stack === this.cardObject?.stack)
+    if (!stackArr.length) return
+    const cardIndex = stackArr.findIndex(c => c.id === this.cardObject?.id)
+    if (!cardIndex) return
+  }
+
+  canDrag() {
+    const stackArr = this.game.cards!.filter(c => c.stack === this.cardObject?.stack)
+    return (this.cardObject?.shown && this.index !== stackArr.length - 1) || this.cardObject?.stack === 'hiddenStore'
+  }
 }

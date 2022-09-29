@@ -1,0 +1,10 @@
+@for $i from 0 through 50 {
+  .card-#{$i} {
+    position: absolute;
+    top: calc(25px * $i);
+
+    &:not(.bottom) {
+      top: 0
+    }
+  }
+}

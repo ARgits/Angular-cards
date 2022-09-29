@@ -1,0 +1,31 @@
+.stack {
+  min-width: 138px;
+  min-height: 200px;
+  border: 0;
+  position: relative;
+
+  &.empty {
+    border: 2px solid black;
+    box-sizing: border-box;
+  }
+
+  &.final-1 {
+    margin-left: 5em;
+  }
+}
+
+
+@for $i from 1 through 7 {
+  .shownStore, .bottom-#{$i}, .final-#{$i} {
+    margin-left: 1em;
+  }
+}
+
+@for $i from 0 through 20 {
+  .length-#{$i} {
+    height: calc(200px + $i * 20px);
+  }
+}
+ng-template[cdkDragPlaceholder] {
+  opacity: 0;
+}

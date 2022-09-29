@@ -1,5 +1,4 @@
 import {Injectable} from '@angular/core';
-import {SupabaseStorageClient} from '@supabase/storage-js'
 import {AuthChangeEvent, createClient, Session, SupabaseClient} from "@supabase/supabase-js";
 import {environment} from "../../environment";
 
@@ -9,18 +8,11 @@ import {environment} from "../../environment";
 export class SupabaseService {
   private supabase: SupabaseClient
 
-  private supabaseStorage: SupabaseStorageClient
 
   constructor() {
     this.supabase = createClient(
       environment.supabaseUrl,
       environment.supabaseKey
-    )
-    this.supabaseStorage = new SupabaseStorageClient(
-      environment.storageUrl, {
-        apikey: environment.serviceKey,
-        Authorization: `Bearer ${environment.serviceKey}`
-      }
     )
   }
 
@@ -33,7 +25,7 @@ export class SupabaseService {
   }
 
   get cards() {
-    return this.supabaseStorage.from('cards')
+    return this.supabase.storage.from('cards')
   }
 
   authChanges(
@@ -42,9 +34,8 @@ export class SupabaseService {
     return this.supabase.auth.onAuthStateChange(callback)
   }
 
-  downloadImage(path: string) {
-    console.log(path)
-    return this.supabaseStorage.from('cards').download(path)
+  async downLoadImage(path: string) {
+    return this.supabase.storage.from('cards').getPublicUrl(path)
   }
 
 }

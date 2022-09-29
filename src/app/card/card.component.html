@@ -1,1 +1,5 @@
-<img *ngIf="card" alt="card" [src]="card" width="138" height="200">
+<img cdkDrag [cdkDragData]="cardObject" [cdkDragPreviewContainer]="'global'" (cdkDragStarted)="onDragStart()"
+     [cdkDragDisabled]="canDrag()"
+     *ngIf="cardObject" alt="card"
+     [src]="cardObject.src" width="138" height="200"
+     [class]="getClass()">

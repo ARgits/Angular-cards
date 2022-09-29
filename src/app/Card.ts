@@ -6,5 +6,7 @@ export interface Card {
   width: number,
   height: number,
   src:string,
-  stack:''
+  stack:string,
+  shown:boolean,
+  color:string
 }

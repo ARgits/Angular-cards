@@ -5,17 +5,23 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { CardComponent } from './card/card.component';
 import {FormsModule, ReactiveFormsModule} from "@angular/forms";
+import { StackComponent } from './stack/stack.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import {DragDropModule} from "@angular/cdk/drag-drop";
 
 @NgModule({
   declarations: [
     AppComponent,
     CardComponent,
+    StackComponent,
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     FormsModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    BrowserAnimationsModule,
+    DragDropModule
   ],
   providers: [],
   bootstrap: [AppComponent]
