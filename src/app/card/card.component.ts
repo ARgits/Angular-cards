@@ -25,16 +25,22 @@ export class CardComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  onDragStart() {
+  onDragStart({$event}: { $event: any }) {
+    console.log('drag start begin')
     if (!this.cardObject) return
+    console.log('card exist')
     const stackArr = this.game.cards!.filter(c => c.stack === this.cardObject?.stack)
     if (!stackArr.length) return
+    console.log('stack is not empty')
     const cardIndex = stackArr.findIndex(c => c.id === this.cardObject?.id)
-    if (!cardIndex) return
+    if (cardIndex === -1) return
+    console.log('card really exist')
+    $event.source.data = [...stackArr.slice(cardIndex)]
+    console.log($event.source.data)
   }
 
   canDrag() {
     const stackArr = this.game.cards!.filter(c => c.stack === this.cardObject?.stack)
-    return (this.cardObject?.shown && this.index !== stackArr.length - 1) || this.cardObject?.stack === 'hiddenStore'
+    return (!this.cardObject?.shown && this.index !== stackArr.length - 1) || this.cardObject?.stack === 'hiddenStore'
   }
 }

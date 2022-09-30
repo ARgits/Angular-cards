@@ -1,7 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {GameService} from "../game.service";
 import {CdkDragDrop} from "@angular/cdk/drag-drop";
-import {Card} from "../Card";
 
 @Component({
   selector: 'app-stack',
@@ -45,7 +44,7 @@ export class StackComponent implements OnInit {
   onDrop($event: CdkDragDrop<any>) {
     console.log($event)
     if ($event.previousContainer === $event.container) return
-    const card = <Card>$event.item.data
-    this.game.changeStack(card, this.stackId)
+    const cards = $event.item.data
+    this.game.changeStack(cards, this.stackId)
   }
 }

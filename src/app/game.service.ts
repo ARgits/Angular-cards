@@ -126,17 +126,35 @@ export class GameService {
     this.cards = [...this.cards, ...shownStore.reverse()]
   }
 
-  changeStack(card: Card, newStack: string) {
+  async changeStack(cards: Card[], newStack: string) {
     if (!this.cards) return
-    const cardIndex = this.cards.findIndex(c => c.id === card.id)
+    const oldStack = cards[0].stack
+    const priority = newStack.includes('final') ? -1 : 1
     const lastCard = this.cards.filter(c => c.stack === newStack).at(-1)
     console.log(lastCard)
     if (lastCard) {
-      if (lastCard.color === card.color) return
-      if (lastCard.priority - card.priority !== 1) return
-    } else if (card.casing !== 'king') return
-
-    this.cards?.splice(cardIndex, 1)
-    this.cards.push({...card, stack: newStack})
+      if (priority && lastCard.color === cards[0].color) return
+      if (lastCard.priority - cards[0].priority !== 1 * priority) return
+    } else if ((cards[0].casing !== 'king' && priority === 1) || (cards[0].casing !== 'ace' && priority === -1)) {
+      console.log(cards[0].casing, priority);
+      return
+    }
+    for (const card of cards) {
+      console.log(card)
+      const cardIndex = this.cards.findIndex(c => c.id === card.id)
+      this.cards?.splice(cardIndex, 1)
+      card.stack = newStack
+    }
+    const previousStackNewLastCard = this.cards.filter(c => c.stack === oldStack).at(-1)
+    if (previousStackNewLastCard) {
+      const previousStackNewLastCardIndex = this.cards.findIndex(c => c.id === previousStackNewLastCard.id)
+      this.cards.splice(previousStackNewLastCardIndex, 1)
+      previousStackNewLastCard.shown = true
+      previousStackNewLastCard.src = await this.getCardSRC(previousStackNewLastCard)
+      console.log(previousStackNewLastCard)
+    }
+    const newCards = <Card[]>[...cards, previousStackNewLastCard].filter(c => c).sort((a, b) => (priority * (b!.priority - a!.priority)))
+    console.log(newCards)
+    this.cards = [...this.cards, ...newCards]
   }
 }

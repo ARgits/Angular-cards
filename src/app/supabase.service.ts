@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {AuthChangeEvent, createClient, Session, SupabaseClient} from "@supabase/supabase-js";
-import {environment} from "../../environment";
+import {environment} from "../environment";
 
 @Injectable({
   providedIn: 'root'
