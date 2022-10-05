@@ -39,7 +39,7 @@ export class GameService {
         card.src = await this.getCardSRC(card)
       }
     } catch ({message}) {
-      console.error('Error getting cards from Cards Game object: ', message)
+      console.error('Error getting cards from Cards Game object:  ', message)
     }
   }
 
