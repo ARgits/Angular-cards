@@ -1,4 +1,5 @@
 <div cdkDropList [id]="stackId" [cdkDropListData]="stackId" [cdkDropListConnectedTo]="whereCanDrop()"
      (cdkDropListDropped)="onDrop($event)" cdkDropListSortingDisabled [class]="getClass()" (click)="click($event)">
-  <app-card *ngFor="let card of stackArr;index as i" [cardObject]="card" [index]="i"></app-card>
+
+  <app-card *ngIf="stackArr.first" [cardObject]="stackArr.first" [index]="0"></app-card>
 </div>

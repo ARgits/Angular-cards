@@ -5,8 +5,9 @@ export interface Card {
   suit: string,
   width: number,
   height: number,
-  src:string,
+  srcCasing:string,
   stack:string,
   shown:boolean,
-  color:string
+  color:string,
+  srcBack:string,
 }
