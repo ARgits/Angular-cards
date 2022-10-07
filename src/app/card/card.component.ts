@@ -1,6 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {GameService} from "../game.service";
-import {Card} from "../Card";
+import {ListNode} from "../../LinkedListNode";
 
 @Component({
   selector: 'app-card',
@@ -9,38 +9,56 @@ import {Card} from "../Card";
 })
 export class CardComponent implements OnInit {
 
-  @Input() cardObject: Card | undefined
-  @Input() index: number | undefined
+  @Input() cardObject: ListNode = new ListNode(null)
+  @Input() index: number = 0
 
 
-  constructor(private readonly game: GameService) {
+  constructor(private readonly game: GameService,) {
   }
 
   getClass() {
     let cls = `card-${this.index}`
-    cls += ` ${this.cardObject?.stack.slice(0, this.cardObject?.stack.indexOf('-'))}`
+    cls += ` ${this.cardObject?.value.stack.slice(0, this.cardObject?.value.stack.indexOf('-'))}`
     return cls
   }
 
-  ngOnInit(): void {
+  getSrc() {
+    return this.cardObject.value.shown ? this.cardObject.value.srcCasing : this.cardObject.value.srcBack
+  }
+
+  ngOnInit()
+    :
+    void {
   }
 
   onDragStart({$event}: { $event: any }) {
-    console.log('drag start begin')
+
     if (!this.cardObject) return
-    console.log('card exist')
-    const stackArr = this.game.cards!.filter(c => c.stack === this.cardObject?.stack)
+    const stackArr = this.game.cards!.filter(c => c.stack === this.cardObject?.value.stack)
     if (!stackArr.length) return
-    console.log('stack is not empty')
-    const cardIndex = stackArr.findIndex(c => c.id === this.cardObject?.id)
+    const cardIndex = stackArr.findIndex(c => c.id === this.cardObject?.value.id)
     if (cardIndex === -1) return
-    console.log('card really exist')
     $event.source.data = [...stackArr.slice(cardIndex)]
-    console.log($event.source.data)
   }
 
   canDrag() {
-    const stackArr = this.game.cards!.filter(c => c.stack === this.cardObject?.stack)
-    return (!this.cardObject?.shown && this.index !== stackArr.length - 1) || this.cardObject?.stack === 'hiddenStore'
+    const stackArr = this.game.cards!.filter(c => c.stack === this.cardObject?.value.stack)
+    return (!this.cardObject?.value.shown && this.index !== stackArr.length - 1) || this.cardObject?.value.stack === 'hiddenStore'
   }
+
+  sendToFinalStack() {
+    if (this.cardObject.next) return
+    const {shown, suit,} = this.cardObject.value
+    if (!shown) return
+    let stackId = this.game.cards?.filter(c => c.suit === suit && c.stack.includes('final'))[0]?.stack
+    if (!stackId) {
+      const index = [1, 2, 3, 4].reduce((previousValue, currentValue) => {
+        if (this.game.cards?.filter(c => c.stack === `final-${previousValue}`).length) return currentValue
+        else return previousValue
+      })
+      stackId = `final-${index}`
+    }
+    this.game.changeStack([this.cardObject.value], stackId)
+  }
+
 }
