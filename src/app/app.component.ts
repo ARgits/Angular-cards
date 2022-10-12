@@ -1,6 +1,7 @@
 import {Component, OnInit} from '@angular/core';
 import {SupabaseService} from "./supabase.service";
 import {GameService} from "./game.service";
+import pkg from "../../package.json"
 
 @Component({
   selector: 'app-root',
@@ -10,10 +11,10 @@ import {GameService} from "./game.service";
 export class AppComponent implements OnInit {
   title = 'angular-cards';
   session = this.supabase.session
-
+  version = pkg.version
   cardTheme = 'default'
 
-  get cards(){
+  get cards() {
     return this.game.cards
   }
 
@@ -37,7 +38,7 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     this.supabase.authChanges((_, session) => (this.session = session))
     console.log(this.session)
-    this.game.cardsTheme='default'
+    this.game.cardsTheme = 'default'
   }
 
 

@@ -1,0 +1,7 @@
+<div>
+  <input #email type="email" placeholder="your email"/>
+  <input #password type="password" placeholder="your password"/>
+  <button type="submit" (click)="handleLogin(email.value,password.value)" [disabled]="loading">
+    {{loading ? "Loading" : "Login"}}
+  </button>
+</div>

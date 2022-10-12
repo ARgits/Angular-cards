@@ -28,6 +28,26 @@ export class SupabaseService {
     return this.supabase.storage.from('cards')
   }
 
+  get profile() {
+    return this.supabase
+      .from('profiles')
+      .select('username, website, avatar_url')
+      .eq('id', this.user?.id)
+      .single()
+  }
+
+  signIn(email: string, password: string) {
+    return this.supabase.auth.signIn({email, password})
+  }
+
+  async signUp(email: string, password: string) {
+    await this.supabase.auth.signUp({email, password})
+  }
+
+  signOut() {
+    return this.supabase.auth.signOut()
+  }
+
   authChanges(
     callback: (event: AuthChangeEvent, session: Session | null) => void
   ) {

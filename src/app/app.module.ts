@@ -8,12 +8,14 @@ import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 import { StackComponent } from './stack/stack.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {DragDropModule} from "@angular/cdk/drag-drop";
+import { AuthComponent } from './auth/auth.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     CardComponent,
     StackComponent,
+    AuthComponent,
   ],
   imports: [
     BrowserModule,

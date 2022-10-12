@@ -1,6 +1,6 @@
 .stack {
-  min-width: 138px;
-  min-height: 200px;
+  min-width: var(--card-width);
+  min-height: var(--card-height);
   border: 0;
   position: relative;
 
@@ -14,18 +14,18 @@
   }
 }
 
-
 @for $i from 1 through 7 {
   .shownStore, .bottom-#{$i}, .final-#{$i} {
     margin-left: 1em;
   }
 }
 
-@for $i from 0 through 20 {
-  .length-#{$i} {
-    height: calc(200px + $i * 20px);
+@for $i from 1 through 20 {
+  .length-#{$i}:not([class^="final-"]) {
+    height: calc(var(--card-height) + $i * (var(--card-height) / 5));
   }
 }
+
 ng-template[cdkDragPlaceholder] {
   opacity: 0;
 }

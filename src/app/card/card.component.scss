@@ -1,7 +1,7 @@
 @for $i from 0 through 50 {
   .card-#{$i} {
     position: absolute;
-    top: calc(25px * $i);
+    top: calc(2vmax * $i);
 
     &:not(.bottom) {
       top: 0
@@ -11,6 +11,8 @@
 
 img {
   -webkit-user-drag: none;
+  width: var(--card-width);
+  height: var(--card-height)
 }
 
 .cdk-drag-placeholder {
