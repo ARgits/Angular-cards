@@ -28,7 +28,7 @@ export class GameService {
     try {
       this.createCards()
       if (!this.cards) return
-      this.cards = this.shuffle(this.cards)
+      this.shuffle()
       this.sortCardsByStack()
       const cardsBucket = await this.supabase.cards
       const {data} = await cardsBucket.list(theme)
@@ -37,7 +37,7 @@ export class GameService {
       console.log(data)
       for (const card of this.cards) {
         card.srcCasing = await this.getCardSRC(card)
-        card.srcBack = <string>(await this.supabase.downLoadImage("default/Card_back.svg")).publicURL
+        card.srcBack = <string>(await this.supabase.downLoadImage("default/Card_back.svg")).data.publicUrl
       }
     } catch ({message}) {
       console.error('Error getting cards from Cards Game object:  ', message)
@@ -48,28 +48,34 @@ export class GameService {
     if (!this.cardsBucketData) return "default/Card_back.svg"
     const dataCard = this.cardsBucketData.find(item => item.name.includes(card.casing) && item.name.includes(card.suit))
     const src = dataCard ? `${this.theme}/${dataCard.name}` : "default/Card_back.svg"
-    return <string>(await this.supabase.downLoadImage(src)).publicURL
+    return <string>(await this.supabase.downLoadImage(src)).data.publicUrl
   }
 
   createCards() {
-    this.cards = []
-    for (const s of this.suit) {
-      for (const [index, c] of this.casing.entries()) {
-        const color = s === 'diamonds' || s === 'hearts' ? "red" : "black"
-        const card: Card = {
-          suit: s,
-          casing: c,
-          id: `${c}_of_${s}`,
-          height: 200,
-          width: 138,
-          priority: index,
-          srcCasing: '',
-          stack: '',
-          shown: false,
-          color,
-          srcBack: ''
+    if (this.cards) {
+      for (const card of this.cards) {
+        card.shown = false
+      }
+    } else {
+      this.cards = []
+      for (const s of this.suit) {
+        for (const [index, c] of this.casing.entries()) {
+          const color = s === 'diamonds' || s === 'hearts' ? "red" : "black"
+          const card: Card = {
+            suit: s,
+            casing: c,
+            id: `${c}_of_${s}`,
+            height: 200,
+            width: 138,
+            priority: index,
+            srcCasing: '',
+            stack: '',
+            shown: false,
+            color,
+            srcBack: ''
+          }
+          this.cards.push(card)
         }
-        this.cards.push(card)
       }
     }
   }
@@ -91,15 +97,17 @@ export class GameService {
 
   }
 
-  shuffle(array: any[]) {
-    let m = array.length, t, i
+  shuffle() {
+    if (!this.cards) return console.error('cards object not defined')
+    const newCards = [...this.cards]
+    let m = newCards.length, t, i
     while (m) {
       i = Math.floor(Math.random() * m--)
-      t = array[m]
-      array[m] = array[i]
-      array[i] = t
+      t = newCards[m]
+      newCards[m] = newCards[i]
+      newCards[i] = t
     }
-    return array
+    this.cards = [...newCards]
   }
 
   async getFromHiddenStore(card: Card) {
@@ -154,5 +162,28 @@ export class GameService {
     }
     const newCards = <Card[]>[...cards, previousStackNewLastCard].filter(c => c).sort((a, b) => (priority * (b!.priority - a!.priority)))
     this.cards = [...this.cards, ...newCards]
+  }
+
+  finalSort() {
+    if (!this.cards) return
+    const storeLength = this.cards.filter((card) => card.stack.includes('Store')).length
+    if (storeLength) return
+    const hiddenBottomCards = this.cards.filter((card) => card.stack.includes('bottom') && !card.shown).length
+    if (hiddenBottomCards) return
+    let excludeStack: string[] = []
+    let bottomCards = this.cards.filter((card) => card.stack.includes('bottom'))
+    while (bottomCards.length) {
+      const lastCard = bottomCards.at(-1)!
+      const {priority, stack} = this.cards.filter((card) =>
+        card.stack.includes('final') && card.suit === lastCard.suit).at(-1)!
+      if (lastCard.priority - priority === 1) {
+        this.changeStack([lastCard], stack)
+        bottomCards = this.cards.filter((card) => card.stack.includes('bottom'))
+        excludeStack = []
+      } else {
+        excludeStack.push(lastCard.stack)
+        bottomCards = this.cards.filter((card) => card.stack.includes('bottom') && !excludeStack.includes(card.stack))
+      }
+    }
   }
 }

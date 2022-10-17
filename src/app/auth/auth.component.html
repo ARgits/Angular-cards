@@ -1,7 +1,28 @@
-<div>
-  <input #email type="email" placeholder="your email"/>
-  <input #password type="password" placeholder="your password"/>
-  <button type="submit" (click)="handleLogin(email.value,password.value)" [disabled]="loading">
-    {{loading ? "Loading" : "Login"}}
+<div *ngIf="user; else loginBlock" class="logged">
+  <p>Hello, user {{user.email}}!</p>
+  <button type="submit" (click)="handleSignOut()" [disabled]="loading">
+    {{loading ? "Signing out" : "SignOut"}}
   </button>
 </div>
+<ng-template #loginBlock>
+  <div class="auth">
+    <div class="header">
+      <div (click)="changeStage('register')">Register</div>
+      <div (click)="changeStage('login')">Login</div>
+    </div>
+    <div>
+      <input #email type="email" placeholder="your email"/>
+      <input *ngIf="stage==='register'" #login type="text" placeholder="your login"/>
+      <input #password type="password" placeholder="your password"/>
+      <div class="login">
+        <button type="submit" (click)="handleLogin(email.value,password.value)" [disabled]="loading">
+          {{loading ? "Loading" : "SignIn"}}
+        </button>
+        <button type="submit" (click)="handleSignUp(email.value,password.value)" [disabled]="loading">
+          {{loading ? "Loading" : "SignUp"}}
+        </button>
+      </div>
+    </div>
+  </div>
+</ng-template>
+

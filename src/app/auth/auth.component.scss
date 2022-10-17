@@ -1,7 +1,26 @@
-div {
+div{
   display: flex;
   flex-direction: column;
 }
-button{
-
+.login, .logged, .header{
+  flex-direction: row;
+}
+.header{
+  align-items: center;
+  justify-content: center;
+  & > div{
+    width: 15vmax;
+    height: 2vmax;
+    border: 2px solid black;
+    background-color: rgba(177, 177, 208, 0.58);
+    text-align: center;
+    justify-content: center;
+    &:first-child{
+      border-right: none;
+    }
+    &:hover{
+      background-color: rgba(177, 177, 208, 1);
+      cursor: pointer;
+    }
+  }
 }

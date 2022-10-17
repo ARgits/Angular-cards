@@ -16,32 +16,24 @@ export class SupabaseService {
     )
   }
 
-  get user() {
-    return this.supabase.auth.user()
+  async getUser() {
+    return await this.supabase.auth.getUser()
   }
 
-  get session() {
-    return this.supabase.auth.session()
+  async getSession() {
+    return await this.supabase.auth.getSession()
   }
 
   get cards() {
     return this.supabase.storage.from('cards')
   }
 
-  get profile() {
-    return this.supabase
-      .from('profiles')
-      .select('username, website, avatar_url')
-      .eq('id', this.user?.id)
-      .single()
-  }
-
-  signIn(email: string, password: string) {
-    return this.supabase.auth.signIn({email, password})
+  async signIn(email: string, password: string) {
+    return await this.supabase.auth.signInWithPassword({email, password})
   }
 
   async signUp(email: string, password: string) {
-    await this.supabase.auth.signUp({email, password})
+    return await this.supabase.auth.signUp({email, password})
   }
 
   signOut() {

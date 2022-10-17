@@ -2,6 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {SupabaseService} from "./supabase.service";
 import {GameService} from "./game.service";
 import pkg from "../../package.json"
+import {Session} from "@supabase/supabase-js";
 
 @Component({
   selector: 'app-root',
@@ -10,7 +11,7 @@ import pkg from "../../package.json"
 })
 export class AppComponent implements OnInit {
   title = 'angular-cards';
-  session = this.supabase.session
+  session: Session | null = null
   version = pkg.version
   cardTheme = 'default'
 
@@ -36,10 +37,24 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.supabase.authChanges((_, session) => (this.session = session))
+    this.supabase.authChanges((changeEvent, session) => {
+      this.session = session;
+      console.log(changeEvent, session)
+    })
     console.log(this.session)
     this.game.cardsTheme = 'default'
   }
 
+  startNewGame() {
+    this.game.createCards()
+    this.game.shuffle()
+    this.game.sortCardsByStack()
+  }
+
+  logSessionIntoConsole() {
+    if (this.session) {
+      console.log(this.session)
+    } else console.error('session was not found')
+  }
 
 }

@@ -59,6 +59,7 @@ export class CardComponent implements OnInit {
       stackId = `final-${index}`
     }
     this.game.changeStack([this.cardObject.value], stackId)
+    this.game.finalSort()
   }
 
 }
