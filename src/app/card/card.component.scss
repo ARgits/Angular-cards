@@ -1,4 +1,4 @@
-@for $i from 0 through 50 {
+@for $i from 0 through 30 {
   .card-#{$i} {
     position: absolute;
     top: calc(var(--vertical-margin) * 2 * $i);
