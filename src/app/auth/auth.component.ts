@@ -11,7 +11,7 @@ export class AuthComponent implements OnInit {
   loading = false
   user: User | null = null
   session: Session | null = null
-  stage: string = ''
+  stage: string = 'register'
 
   constructor(private readonly supabase: SupabaseService) {
   }

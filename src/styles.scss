@@ -1,22 +1,13 @@
 /* You can add global styles to this file, and also import other style files */
 body {
   background-color: green;
-  margin: 0;
+  margin: 1vh;
   font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 
 :root {
-  --card-height: 200px;
-  --card-width: 138px;
-}
-
-@media screen and (max-width: 800px) {
-  :root {
-    --card-height: 6em;
-    --card-width: 4em;
-  }
-}
-
-html, body {
-  height: 100%;
+  --card-height: 20vmin;
+  --card-width: calc(20vmin / 1.5);
+  --horizontal-margin:1vw;
+  --vertical-margin:1vh
 }

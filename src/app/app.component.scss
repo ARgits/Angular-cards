@@ -1,37 +1,14 @@
-
-
 .main {
   display: flex;
   flex-direction: column;
-  width: fit-content;
-  margin: 0 auto;
+  margin: 1vh auto;
 }
 
 .top, .bottom {
   display: flex;
   flex-direction: row;
+  justify-content: space-between;
 }
 .top{
-  margin-bottom: 2em;
-}
-
-.stack {
-  min-width: 138px;
-  min-height: 200px;
-  border: 2px solid black;
-  box-sizing: border-box;
-}
-@media screen and (max-width: 800px) {
-  .stack{
-    min-width: 4em;
-    min-height: 6em;
-  }
-}
-
-.stack:not(:first-child) {
-  margin-left: 1em;
-}
-
-.stack.final-1 {
-  margin-left: 5em;
+  margin-bottom: 2vmax;
 }

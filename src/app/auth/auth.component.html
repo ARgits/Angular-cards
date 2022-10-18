@@ -5,23 +5,23 @@
   </button>
 </div>
 <ng-template #loginBlock>
-  <div class="auth">
+  <div [class]="'auth '+stage">
     <div class="header">
-      <div (click)="changeStage('register')">Register</div>
-      <div (click)="changeStage('login')">Login</div>
+      <div (click)="changeStage('register')" [class.chosen]="stage==='register'">Register</div>
+      <div (click)="changeStage('login')" [class.chosen]="stage==='login'">Login</div>
     </div>
-    <div>
+    <div class="credentials">
       <input #email type="email" placeholder="your email"/>
-      <input *ngIf="stage==='register'" #login type="text" placeholder="your login"/>
+      <input *ngIf="stage==='login'" #login type="text" placeholder="your login"/>
       <input #password type="password" placeholder="your password"/>
-      <div class="login">
-        <button type="submit" (click)="handleLogin(email.value,password.value)" [disabled]="loading">
-          {{loading ? "Loading" : "SignIn"}}
-        </button>
-        <button type="submit" (click)="handleSignUp(email.value,password.value)" [disabled]="loading">
-          {{loading ? "Loading" : "SignUp"}}
-        </button>
-      </div>
+      <button *ngIf="stage==='login'" type="submit" (click)="handleLogin(email.value,password.value)"
+              [disabled]="loading">
+        {{loading ? "Loading" : "SignIn"}}
+      </button>
+      <button *ngIf="stage==='register'" type="submit" (click)="handleSignUp(email.value,password.value)"
+              [disabled]="loading">
+        {{loading ? "Loading" : "SignUp"}}
+      </button>
     </div>
   </div>
 </ng-template>
