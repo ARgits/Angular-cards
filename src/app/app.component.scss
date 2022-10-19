@@ -12,3 +12,9 @@
 .top{
   margin-bottom: 2vmax;
 }
+.buttons{
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: space-between;
+  margin: 5px 0;
+}

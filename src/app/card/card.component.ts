@@ -62,4 +62,8 @@ export class CardComponent implements OnInit {
     this.game.finalSort()
   }
 
+  forbidDownload() {
+    return false
+  }
+
 }

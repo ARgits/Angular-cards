@@ -11,6 +11,7 @@
 
 img {
   -webkit-user-drag: none;
+  user-select: none;
   width: var(--card-width);
   height: var(--card-height)
 }

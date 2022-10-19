@@ -19,6 +19,7 @@ export class AppComponent implements OnInit {
   user: User | undefined = undefined
   loading: boolean = false
   dialogRef: MatDialogRef<any> | null = null;
+  unFinished: boolean = true
 
   get gameFinished() {
     if (!this.cards.length) return false
@@ -50,7 +51,8 @@ export class AppComponent implements OnInit {
 
   ngDoCheck() {
     console.log(this.gameFinished)
-    if (this.gameFinished) {
+    if (this.gameFinished && this.unFinished) {
+      this.unFinished = false
       this.dialogRef = this.dialog.open(VictoryDialogComponent, {
         id: 'victoryDialog',
         width: '25vw',
@@ -64,6 +66,16 @@ export class AppComponent implements OnInit {
 
   startNewGame() {
     this.game.restartGame()
+  }
+  callVictoryDialog(){
+    this.dialogRef = this.dialog.open(VictoryDialogComponent, {
+      id: 'victoryDialog',
+      width: '25vw',
+      height: '25vh',
+    })
+    this.dialogRef.afterClosed().subscribe(() => {
+      this.dialogRef = null
+    })
   }
 
 
