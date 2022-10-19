@@ -4,7 +4,9 @@ body {
   margin: 1vh;
   font-family: Roboto, "Helvetica Neue", sans-serif;
 }
-
+#loginDialog{
+  padding: 2.5vh 2.5vw;
+}
 :root {
   --card-height: 20vmin;
   --card-width: calc(20vmin / 1.5);

@@ -1,9 +1,15 @@
 <div class="main">
   {{version}}
-    <app-auth></app-auth>
-  <div>
-    <button type="button" (click)="startNewGame()">Start New Game</button>
+  <div *ngIf="user; else login">
+    Hello, {{user.email}}!
+    <button type="submit" (click)="signOut()" [disabled]="loading">
+      {{loading ? "Signing out" : "SignOut"}}
+    </button>
   </div>
+  <ng-template #login>
+    <button type="button" (click)="openDialog()">Login</button>
+  </ng-template>
+  <button type="button" (click)="startNewGame()">Start New Game</button>
   <div class="top">
     <app-stack [stackId]="'hiddenStore'"></app-stack>
     <app-stack [stackId]="'shownStore'"></app-stack>

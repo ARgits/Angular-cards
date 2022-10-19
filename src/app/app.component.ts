@@ -2,7 +2,10 @@ import {Component, OnInit} from '@angular/core';
 import {SupabaseService} from "./supabase.service";
 import {GameService} from "./game.service";
 import pkg from "../../package.json"
-import {Session} from "@supabase/supabase-js";
+import {Session, User} from "@supabase/supabase-js";
+import {MatDialog, MatDialogRef} from "@angular/material/dialog";
+import {AuthComponent} from "./auth/auth.component";
+import {VictoryDialogComponent} from "./victory-dialog/victory-dialog.component";
 
 @Component({
   selector: 'app-root',
@@ -13,7 +16,14 @@ export class AppComponent implements OnInit {
   title = 'angular-cards';
   session: Session | null = null
   version = pkg.version
-  cardTheme = 'default'
+  user: User | undefined = undefined
+  loading: boolean = false
+  dialogRef: MatDialogRef<any> | null = null;
+
+  get gameFinished() {
+    if (!this.cards.length) return false
+    return this.cards.length === this.cards.filter(card => card.stack.includes('final')).length;
+  }
 
   get cards() {
     return this.game.cards
@@ -22,39 +32,67 @@ export class AppComponent implements OnInit {
   constructor
   (
     private supabase: SupabaseService,
-    private game: GameService
+    private game: GameService,
+    public dialog: MatDialog,
   ) {
-  }
-
-  getCards(theme: string) {
-    this.game.cardsTheme = theme
-    return this.game.cards
-  }
-
-  changeTheme({theme}: { theme: string }) {
-    this.cardTheme = theme
-    this.game.cardsTheme = theme
   }
 
   ngOnInit() {
     this.supabase.authChanges((changeEvent, session) => {
       this.session = session;
+      this.user = session?.user
       console.log(changeEvent, session)
+
     })
-    console.log(this.session)
-    this.game.cardsTheme = 'default'
+    if (!this.user)
+      this.openDialog()
+  }
+
+  ngDoCheck() {
+    console.log(this.gameFinished)
+    if (this.gameFinished) {
+      this.dialogRef = this.dialog.open(VictoryDialogComponent, {
+        id: 'victoryDialog',
+        width: '25vw',
+        height: '25vh',
+      })
+      this.dialogRef.afterClosed().subscribe(() => {
+        this.dialogRef = null
+      })
+    }
   }
 
   startNewGame() {
-    this.game.createCards()
-    this.game.shuffle()
-    this.game.sortCardsByStack()
+    this.game.restartGame()
   }
 
-  logSessionIntoConsole() {
-    if (this.session) {
-      console.log(this.session)
-    } else console.error('session was not found')
+
+  openDialog() {
+    this.dialogRef = this.dialog.open(AuthComponent, {
+      id: "loginDialog",
+      width: '50vw',
+      height: '50vh',
+      data: {
+        user: this.user
+      }
+    })
+    this.dialogRef.afterClosed().subscribe(() => {
+      this.dialogRef = null
+    })
+  }
+
+  async signOut() {
+    try {
+      this.loading = true
+      await this.supabase.signOut()
+      this.user = undefined
+      this.session = null
+    } catch (error) {
+      //@ts-ignore
+      alert(error.error_description || error.message)
+    } finally {
+      this.loading = false
+    }
   }
 
 }

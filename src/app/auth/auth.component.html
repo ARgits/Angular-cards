@@ -1,28 +1,49 @@
-<div *ngIf="user; else loginBlock" class="logged">
-  <p>Hello, user {{user.email}}!</p>
-  <button type="submit" (click)="handleSignOut()" [disabled]="loading">
-    {{loading ? "Signing out" : "SignOut"}}
-  </button>
-</div>
-<ng-template #loginBlock>
-  <div [class]="'auth '+stage">
-    <div class="header">
-      <div (click)="changeStage('register')" [class.chosen]="stage==='register'">Register</div>
-      <div (click)="changeStage('login')" [class.chosen]="stage==='login'">Login</div>
-    </div>
-    <div class="credentials">
-      <input #email type="email" placeholder="your email"/>
-      <input *ngIf="stage==='login'" #login type="text" placeholder="your login"/>
-      <input #password type="password" placeholder="your password"/>
-      <button *ngIf="stage==='login'" type="submit" (click)="handleLogin(email.value,password.value)"
-              [disabled]="loading">
-        {{loading ? "Loading" : "SignIn"}}
-      </button>
-      <button *ngIf="stage==='register'" type="submit" (click)="handleSignUp(email.value,password.value)"
-              [disabled]="loading">
-        {{loading ? "Loading" : "SignUp"}}
-      </button>
-    </div>
+<div class="authMain">
+  <div *ngIf="user; else loginBlock" class="logged">
+    <p>Hello, user {{user.email}}!</p>
+    <button mat-raised-button type="submit" (click)="handleSignOut()" [disabled]="loading">
+      {{loading ? "Signing out" : "SignOut"}}
+    </button>
   </div>
-</ng-template>
+  <ng-template #loginBlock>
+    <div [class]="'auth '+stage">
+      <div class="header">
+        <button mat-raised-button (click)="changeStage('register')" [class.chosen]="stage==='register'">Register
+        </button>
+        <button mat-raised-button (click)="changeStage('login')" [class.chosen]="stage==='login'">Login</button>
+      </div>
+      <div class="credentials">
+        <mat-form-field>
+          <mat-label>Email</mat-label>
+          <input matInput #email type="email"/>
+        </mat-form-field>
+        <mat-form-field *ngIf="stage==='login'">
+          <mat-label>Login</mat-label>
+          <input matInput #login type="text"/>
+        </mat-form-field>
+        <mat-form-field>
+          <mat-label>Password</mat-label>
+          <input matInput #password type="password"/>
+        </mat-form-field>
+        <button mat-raised-button *ngIf="stage==='login'" type="submit"
+                (click)="handleLogin(email.value,password.value)"
+                [disabled]="loading">
+          {{loading ? "Loading" : "SignIn"}}
+        </button>
+        <button mat-raised-button *ngIf="stage==='register'" type="submit"
+                (click)="handleSignUp(email.value,password.value)"
+                [disabled]="loading">
+          {{loading ? "Loading" : "SignUp"}}
+        </button>
 
+      </div>
+    </div>
+  </ng-template>
+  <div style="text-align: center">
+    or
+  </div>
+  <button mat-raised-button class="play" (click)="playWithoutLogin()">
+    Play<span *ngIf="!user"> without login</span>!
+  </button>
+  <button mat-raised-button class="close" *ngIf="user">X</button>
+</div>

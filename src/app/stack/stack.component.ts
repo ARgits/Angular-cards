@@ -12,8 +12,11 @@ export class StackComponent implements OnInit {
   @Input() stackId: string = ''
 
   get stackArr() {
-    const stack = this.game.cards!.filter((c) => c.stack === this.stackId)
-    return new LinkedList(stack)
+    if (this.game.cards) {
+      const stack = this.game.cards.filter((c) => c.stack === this.stackId)
+      return new LinkedList(stack)
+    }
+    return new LinkedList([])
   }
 
   constructor(private readonly game: GameService) {

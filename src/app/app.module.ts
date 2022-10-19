@@ -9,6 +9,12 @@ import { StackComponent } from './stack/stack.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {DragDropModule} from "@angular/cdk/drag-drop";
 import { AuthComponent } from './auth/auth.component';
+import { MatDialogModule} from "@angular/material/dialog";
+import {MatProgressBarModule} from "@angular/material/progress-bar";
+import {MatButtonModule} from "@angular/material/button";
+import {MatFormFieldModule} from "@angular/material/form-field";
+import {MatInputModule} from "@angular/material/input";
+import { VictoryDialogComponent } from './victory-dialog/victory-dialog.component';
 
 @NgModule({
   declarations: [
@@ -16,6 +22,7 @@ import { AuthComponent } from './auth/auth.component';
     CardComponent,
     StackComponent,
     AuthComponent,
+    VictoryDialogComponent,
   ],
   imports: [
     BrowserModule,
@@ -23,7 +30,12 @@ import { AuthComponent } from './auth/auth.component';
     FormsModule,
     ReactiveFormsModule,
     BrowserAnimationsModule,
-    DragDropModule
+    DragDropModule,
+    MatDialogModule,
+    MatProgressBarModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule,
   ],
   providers: [],
   bootstrap: [AppComponent]

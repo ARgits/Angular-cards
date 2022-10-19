@@ -1,6 +1,9 @@
 import {Component, OnInit} from '@angular/core';
 import {SupabaseService} from "../supabase.service";
 import {Session, User} from "@supabase/supabase-js";
+import {MatDialogRef} from "@angular/material/dialog";
+import {GameService} from "../game.service";
+
 
 @Component({
   selector: 'app-auth',
@@ -12,8 +15,25 @@ export class AuthComponent implements OnInit {
   user: User | null = null
   session: Session | null = null
   stage: string = 'register'
+  images: string[] = []
+  progress: number = 0
 
-  constructor(private readonly supabase: SupabaseService) {
+  constructor(private readonly game: GameService,
+              private readonly supabase: SupabaseService,
+              public dialogRef: MatDialogRef<AuthComponent>) {
+    dialogRef.disableClose = true
+  }
+
+  ngOnInit(): void {
+    console.log(this.user)
+    console.log(this.dialogRef)
+    this.supabase.cards.list('default').then(({data}) => {
+      if (data) {
+        console.log(data);
+        this.images = data.filter(img => img.name !== '.emptyFolderPlaceholder').map((img) => this.supabase.cards.getPublicUrl(`default/${img.name}`).data.publicUrl);
+        console.log(this.images)
+      }
+    })
   }
 
   async handleLogin(email: string, password: string) {
@@ -61,10 +81,26 @@ export class AuthComponent implements OnInit {
     }
   }
 
-  ngOnInit(): void {
-  }
 
   changeStage(name: string) {
     this.stage = name === 'register' || name === 'login' ? name : ''
+  }
+
+  playWithoutLogin() {
+    this.dialogRef.close()
+    if (!this.game.cards?.length)
+      this.progress = 0
+    for (let src of this.images) {
+      let img = new Image()
+      img.onload = () => {
+        this.progress += this.images.length / 100
+      }
+      img.src = src
+    }
+    this.game.cardsTheme = 'default'
+  }
+
+  close() {
+    this.dialogRef.close()
   }
 }

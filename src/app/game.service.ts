@@ -7,7 +7,7 @@ import {FileObject} from "@supabase/storage-js";
   providedIn: 'root'
 })
 export class GameService {
-  cards: Card[] | undefined
+  cards: Card[] = []
   numberOfCards: number = 52
   numberOfStack: number = 7
   suit: string[] = ['clubs', 'diamonds', 'spades', 'hearts']
@@ -26,8 +26,9 @@ export class GameService {
 
   async startGame(theme: string) {
     try {
+      console.log('creation cards')
       this.createCards()
-      if (!this.cards) return
+      if (!this.cards.length) return
       this.shuffle()
       this.sortCardsByStack()
       const cardsBucket = await this.supabase.cards
@@ -43,6 +44,14 @@ export class GameService {
       console.error('Error getting cards from Cards Game object:  ', message)
     }
   }
+  restartGame(){
+    if (!this.cards.length) this.startGame('default')
+    else {
+      this.createCards()
+      this.shuffle()
+      this.sortCardsByStack()
+    }
+  }
 
   async getCardSRC(card: Card) {
     if (!this.cardsBucketData) return "default/Card_back.svg"
@@ -52,12 +61,11 @@ export class GameService {
   }
 
   createCards() {
-    if (this.cards) {
+    if (this.cards.length) {
       for (const card of this.cards) {
         card.shown = false
       }
     } else {
-      this.cards = []
       for (const s of this.suit) {
         for (const [index, c] of this.casing.entries()) {
           const color = s === 'diamonds' || s === 'hearts' ? "red" : "black"
@@ -81,9 +89,8 @@ export class GameService {
   }
 
   sortCardsByStack() {
-    if (!this.cards) return
     const cardsDistribution = ([] as number[]).concat(...Array(this.numberOfStack).fill(null).map((item, index) => Array(index + 1).fill(null).map(() => index + 1)))
-    for (const [index, card] of this.cards?.entries()) {
+    for (const [index, card] of this.cards.entries()) {
       if (index < cardsDistribution.length) {
         const num = cardsDistribution[index]
         const isLast = cardsDistribution[index + 1] !== num
@@ -98,7 +105,7 @@ export class GameService {
   }
 
   shuffle() {
-    if (!this.cards) return console.error('cards object not defined')
+    if (!this.cards.length) return console.error('cards object not defined')
     const newCards = [...this.cards]
     let m = newCards.length, t, i
     while (m) {
@@ -111,7 +118,6 @@ export class GameService {
   }
 
   async getFromHiddenStore(card: Card) {
-    if (!this.cards) return
     const index = this.cards.findIndex(c => c.id === card.id)
     if (!index) return
     this.cards.splice(index, 1)
@@ -121,7 +127,6 @@ export class GameService {
   }
 
   async refreshHiddenStore() {
-    if (!this.cards) return
     const shownStore = this.cards.filter(c => c.stack === 'shownStore')
     for (let card of shownStore) {
       const index = this.cards.findIndex(c => c.id === card.id)
@@ -136,7 +141,6 @@ export class GameService {
 
   // @ts-ignore
   async changeStack(cards: Card[], newStack: string) {
-    if (!this.cards) return
     const oldStack = cards[0].stack
     const priority = newStack.includes('final') ? -1 : 1
     const lastCard = this.cards.filter(c => c.stack === newStack).at(-1)
@@ -165,7 +169,6 @@ export class GameService {
   }
 
   finalSort() {
-    if (!this.cards) return
     const storeLength = this.cards.filter((card) => card.stack.includes('Store')).length
     if (storeLength) return
     const hiddenBottomCards = this.cards.filter((card) => card.stack.includes('bottom') && !card.shown).length
