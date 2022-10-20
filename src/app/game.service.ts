@@ -2,6 +2,9 @@ import {Injectable} from '@angular/core';
 import {Card} from "./Card";
 import {SupabaseService} from "./supabase.service";
 import {FileObject} from "@supabase/storage-js";
+import {VictoryDialogComponent} from "./victory-dialog/victory-dialog.component";
+import {MatDialog, MatDialogRef} from "@angular/material/dialog";
+import {Session} from "@supabase/supabase-js";
 
 @Injectable({
   providedIn: 'root'
@@ -15,13 +18,27 @@ export class GameService {
   theme: string
   cardsBucketData: FileObject[] | undefined
   stacks: string[] = ['hiddenStore', 'shownStore', 'final-1', 'final-2', 'final-3', 'final-4']
+  dialogRef: MatDialogRef<any> | null = null;
+  session: Session | null = null
 
-  constructor(private readonly supabase: SupabaseService) {
+  get user() {
+    return this.session?.user
+  }
+
+  constructor(private readonly supabase: SupabaseService,
+              public dialog: MatDialog,) {
     this.theme = 'default'
+    supabase.getSession().then(({data: {session}}) => this.session = session)
+  }
+
+  set gameFinished(isFinished: boolean) {
+    if (isFinished) this.callVictoryDialog()
   }
 
   set cardsTheme(theme: string) {
-    this.startGame(theme)
+    this.startGame(theme).then(() => {
+      console.log('Game has Started')
+    })
   }
 
   async startGame(theme: string) {
@@ -44,8 +61,9 @@ export class GameService {
       console.error('Error getting cards from Cards Game object:  ', message)
     }
   }
-  restartGame(){
-    if (!this.cards.length) this.startGame('default')
+
+  restartGame() {
+    if (!this.cards.length) this.startGame('default').then(() => console.log('Game has Started'))
     else {
       this.createCards()
       this.shuffle()
@@ -166,6 +184,7 @@ export class GameService {
     }
     const newCards = <Card[]>[...cards, previousStackNewLastCard].filter(c => c).sort((a, b) => (priority * (b!.priority - a!.priority)))
     this.cards = [...this.cards, ...newCards]
+    this.gameFinished = this.cards.length === this.cards.filter(card => card.stack.includes('final')).length
   }
 
   finalSort() {
@@ -180,7 +199,7 @@ export class GameService {
       const {priority, stack} = this.cards.filter((card) =>
         card.stack.includes('final') && card.suit === lastCard.suit).at(-1)!
       if (lastCard.priority - priority === 1) {
-        this.changeStack([lastCard], stack)
+        this.changeStack([lastCard], stack).then(() => console.log(lastCard.id, 'was moved to ', stack, ' stack'))
         bottomCards = this.cards.filter((card) => card.stack.includes('bottom'))
         excludeStack = []
       } else {
@@ -188,5 +207,16 @@ export class GameService {
         bottomCards = this.cards.filter((card) => card.stack.includes('bottom') && !excludeStack.includes(card.stack))
       }
     }
+  }
+
+  callVictoryDialog() {
+    this.dialogRef = this.dialog.open(VictoryDialogComponent, {
+      id: 'victoryDialog',
+      width: '25vw',
+      height: '25vh',
+    })
+    this.dialogRef.afterClosed().subscribe(() => {
+      this.dialogRef = null
+    })
   }
 }

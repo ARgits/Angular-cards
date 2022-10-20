@@ -1,9 +1,11 @@
 <div class="main">
   {{version}}
   <div class="buttons">
-    <div *ngIf="user; else login">
-      Hello, {{user.email}}!
-      <button type="submit" (click)="signOut()" [disabled]="loading">
+    <div class="user-info" *ngIf="user; else login">
+      <span>
+        Hello, {{user.email}}!
+      </span>
+      <button mat-raised-button type="submit" (click)="signOut()" [disabled]="loading">
         {{loading ? "Signing out" : "SignOut"}}
       </button>
     </div>

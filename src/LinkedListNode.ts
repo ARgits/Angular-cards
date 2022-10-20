@@ -93,18 +93,6 @@ export default class LinkedList {
     dummy!.next = newNode;
   }
 
-  //prints whole list in a pretty format.
-  print() {
-    let dummy = this.head;
-    let result = "";
-    while (dummy) {
-      if (dummy.next == null) result += dummy.value + " --> Null";
-      else result += dummy.value + " --> ";
-      dummy = dummy.next;
-    }
-    console.log(result);
-  }
-
   //parent remove method
   remove(val: any) {
     let curr = this.head;

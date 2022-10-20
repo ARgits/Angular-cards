@@ -1,3 +1,4 @@
+// noinspection SpellCheckingInspection
 export const environment = {
   production: false,
   supabaseUrl: 'https://zrzdptljtpgfutrzaqfq.supabase.co',

@@ -25,13 +25,12 @@ export class AuthComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    console.log(this.user)
-    console.log(this.dialogRef)
+
     this.supabase.cards.list('default').then(({data}) => {
       if (data) {
-        console.log(data);
+
         this.images = data.filter(img => img.name !== '.emptyFolderPlaceholder').map((img) => this.supabase.cards.getPublicUrl(`default/${img.name}`).data.publicUrl);
-        console.log(this.images)
+
       }
     })
   }
@@ -40,7 +39,6 @@ export class AuthComponent implements OnInit {
     try {
       this.loading = true
       const user = await this.supabase.signIn(email, password)
-      console.log(user)
       if (user.error) console.log(user.error)
       if (user.data) {
         console.log(user.data)

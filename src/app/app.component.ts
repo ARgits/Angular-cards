@@ -2,10 +2,9 @@ import {Component, OnInit} from '@angular/core';
 import {SupabaseService} from "./supabase.service";
 import {GameService} from "./game.service";
 import pkg from "../../package.json"
-import {Session, User} from "@supabase/supabase-js";
+import {Session} from "@supabase/supabase-js";
 import {MatDialog, MatDialogRef} from "@angular/material/dialog";
 import {AuthComponent} from "./auth/auth.component";
-import {VictoryDialogComponent} from "./victory-dialog/victory-dialog.component";
 
 @Component({
   selector: 'app-root',
@@ -16,15 +15,13 @@ export class AppComponent implements OnInit {
   title = 'angular-cards';
   session: Session | null = null
   version = pkg.version
-  user: User | undefined = undefined
   loading: boolean = false
   dialogRef: MatDialogRef<any> | null = null;
-  unFinished: boolean = true
 
-  get gameFinished() {
-    if (!this.cards.length) return false
-    return this.cards.length === this.cards.filter(card => card.stack.includes('final')).length;
+  get user() {
+    return this.session?.user
   }
+
 
   get cards() {
     return this.game.cards
@@ -34,48 +31,27 @@ export class AppComponent implements OnInit {
   (
     private supabase: SupabaseService,
     private game: GameService,
-    public dialog: MatDialog,
+    public dialog: MatDialog
   ) {
   }
 
   ngOnInit() {
     this.supabase.authChanges((changeEvent, session) => {
       this.session = session;
-      this.user = session?.user
-      console.log(changeEvent, session)
-
     })
-    if (!this.user)
-      this.openDialog()
-  }
-
-  ngDoCheck() {
-    console.log(this.gameFinished)
-    if (this.gameFinished && this.unFinished) {
-      this.unFinished = false
-      this.dialogRef = this.dialog.open(VictoryDialogComponent, {
-        id: 'victoryDialog',
-        width: '25vw',
-        height: '25vh',
-      })
-      this.dialogRef.afterClosed().subscribe(() => {
-        this.dialogRef = null
+    if (!this.session) {
+      this.supabase.getSession().then(value => {
+        this.session = value.data.session;
+        if (!this.user) {
+          this.openDialog()
+        }
       })
     }
   }
 
+
   startNewGame() {
     this.game.restartGame()
-  }
-  callVictoryDialog(){
-    this.dialogRef = this.dialog.open(VictoryDialogComponent, {
-      id: 'victoryDialog',
-      width: '25vw',
-      height: '25vh',
-    })
-    this.dialogRef.afterClosed().subscribe(() => {
-      this.dialogRef = null
-    })
   }
 
 
@@ -97,7 +73,6 @@ export class AppComponent implements OnInit {
     try {
       this.loading = true
       await this.supabase.signOut()
-      this.user = undefined
       this.session = null
     } catch (error) {
       //@ts-ignore
