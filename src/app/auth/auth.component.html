@@ -38,6 +38,9 @@
 
       </div>
     </div>
+    <div *ngIf="downloadStarts">
+      <img hidden *ngFor="let img of images" [src]="img" alt="card" (load)="setProgress()"/>
+    </div>
   </ng-template>
   <div style="text-align: center">
     or
@@ -46,4 +49,10 @@
     Play<span *ngIf="!user"> without login</span>!
   </button>
   <button mat-raised-button class="close" *ngIf="user">X</button>
+  <div *ngIf="downloadStarts" class="progress">
+    <mat-progress-bar  mode="determinate" [value]="progress"></mat-progress-bar>
+    <span class="percentage">
+      {{progress.toFixed(0)}}%
+    </span>
+  </div>
 </div>

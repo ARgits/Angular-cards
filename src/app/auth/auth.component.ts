@@ -17,6 +17,8 @@ export class AuthComponent implements OnInit {
   stage: string = 'register'
   images: string[] = []
   progress: number = 0
+  downloadStarts: boolean = false
+
 
   constructor(private readonly game: GameService,
               private readonly supabase: SupabaseService,
@@ -25,21 +27,15 @@ export class AuthComponent implements OnInit {
   }
 
   ngOnInit(): void {
-
-    this.supabase.cards.list('default').then(({data}) => {
-      if (data) {
-
-        this.images = data.filter(img => img.name !== '.emptyFolderPlaceholder').map((img) => this.supabase.cards.getPublicUrl(`default/${img.name}`).data.publicUrl);
-
-      }
-    })
   }
 
   async handleLogin(email: string, password: string) {
     try {
       this.loading = true
       const user = await this.supabase.signIn(email, password)
-      if (user.error) console.log(user.error)
+      if (user.error) {
+        console.log(user.error)
+      }
       if (user.data) {
         console.log(user.data)
         this.user = user.data.user
@@ -84,21 +80,37 @@ export class AuthComponent implements OnInit {
     this.stage = name === 'register' || name === 'login' ? name : ''
   }
 
-  playWithoutLogin() {
-    this.dialogRef.close()
-    if (!this.game.cards?.length)
-      this.progress = 0
-    for (let src of this.images) {
-      let img = new Image()
-      img.onload = () => {
-        this.progress += this.images.length / 100
-      }
-      img.src = src
+  async playWithoutLogin() {
+
+    //Если карты уже было созданы, ничего снова подгружать не надо
+    //TODO: скорректировать под выбор других карточных тем в будущем
+    if (this.game.cards.length) {
+      this.dialogRef.close()
+      return
     }
-    this.game.cardsTheme = 'default'
+    console.log('карты не были созданы, загружаем...')
+    const {data} = await this.supabase.cards.list('default')
+    this.progress = 0
+    this.downloadStarts = true
+    if (data) {
+      this.images = data.filter(img => img.name !== '.emptyFolderPlaceholder').map((img) => this.supabase.cards.getPublicUrl(`default/${img.name}`).data.publicUrl);
+    }
+
   }
 
+  setProgress() {
+    console.log('изображение загружается', this.images.length)
+    this.progress = Math.min(this.progress + .001 + 100 / this.images.length, 100)
+    console.log('изображение загружено, прогресс: ', this.progress, '%')
+    /*if (this.progress === 100) {
+      setTimeout(() => this.close(), 1000)
+    }*/
+  }
+
+
   close() {
+    this.game.cardsTheme = 'default'
     this.dialogRef.close()
+    this.progress = 0
   }
 }
