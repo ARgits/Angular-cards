@@ -85,7 +85,7 @@ export class AuthComponent implements OnInit {
     //Если карты уже было созданы, ничего снова подгружать не надо
     //TODO: скорректировать под выбор других карточных тем в будущем
     if (this.game.cards.length) {
-      this.dialogRef.close()
+      this.close()
       return
     }
     console.log('карты не были созданы, загружаем...')
@@ -102,15 +102,20 @@ export class AuthComponent implements OnInit {
     console.log('изображение загружается', this.images.length)
     this.progress = Math.min(this.progress + .001 + 100 / this.images.length, 100)
     console.log('изображение загружено, прогресс: ', this.progress, '%')
-    /*if (this.progress === 100) {
-      setTimeout(() => this.close(), 1000)
-    }*/
+    if (this.progress === 100 && this.downloadStarts) {
+      setTimeout(() => {
+        this.downloadStarts = false;
+        this.game.cardsTheme = 'default';
+        this.progress = 0;
+        this.close()
+      }, 1000)
+      this.downloadStarts = false
+    }
   }
 
 
   close() {
-    this.game.cardsTheme = 'default'
     this.dialogRef.close()
-    this.progress = 0
+    this.game.state = 'active'
   }
 }

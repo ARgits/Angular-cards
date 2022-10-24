@@ -20,6 +20,8 @@ export class GameService {
   stacks: string[] = ['hiddenStore', 'shownStore', 'final-1', 'final-2', 'final-3', 'final-4']
   dialogRef: MatDialogRef<any> | null = null;
   session: Session | null = null
+  state: string = 'paused'
+  gameTime: number = 0
 
   get user() {
     return this.session?.user
@@ -32,12 +34,21 @@ export class GameService {
   }
 
   set gameFinished(isFinished: boolean) {
-    if (isFinished) this.callVictoryDialog()
+    if (isFinished) {
+      this.callVictoryDialog()
+      this.state = 'paused'
+      if (this.user) {
+        const time = this.user.user_metadata['time'] || [this.gameTime]
+        this.supabase.updateUser({data: {time}}).then(() => console.log('user data successfully updated'))
+      }
+    }
   }
 
-  set cardsTheme(theme: string) {
+  set cardsTheme(theme: string
+  ) {
     this.startGame(theme).then(() => {
       console.log('Game has Started')
+
     })
   }
 
@@ -45,34 +56,46 @@ export class GameService {
     try {
       console.log('creation cards')
       this.createCards()
-      if (!this.cards.length) return
+      if (!this.cards.length) {
+        return
+      }
       this.shuffle()
       this.sortCardsByStack()
       const cardsBucket = await this.supabase.cards
       const {data} = await cardsBucket.list(theme)
-      if (!data) return
+      if (!data) {
+        return
+      }
       this.cardsBucketData = data
       console.log(data)
       for (const card of this.cards) {
         card.srcCasing = await this.getCardSRC(card)
         card.srcBack = <string>(await this.supabase.downLoadImage("default/Card_back.svg")).data.publicUrl
       }
+      this.state = 'active'
+      this.gameTime = 0
     } catch ({message}) {
       console.error('Error getting cards from Cards Game object:  ', message)
     }
   }
 
   restartGame() {
-    if (!this.cards.length) this.startGame('default').then(() => console.log('Game has Started'))
+    if (!this.cards.length) {
+      this.startGame('default').then(() => console.log('Game has Started'))
+    }
     else {
       this.createCards()
       this.shuffle()
       this.sortCardsByStack()
+      this.state = 'active'
+      this.gameTime = 0
     }
   }
 
   async getCardSRC(card: Card) {
-    if (!this.cardsBucketData) return "default/Card_back.svg"
+    if (!this.cardsBucketData) {
+      return "default/Card_back.svg"
+    }
     const dataCard = this.cardsBucketData.find(item => item.name.includes(card.casing) && item.name.includes(card.suit))
     const src = dataCard ? `${this.theme}/${dataCard.name}` : "default/Card_back.svg"
     return <string>(await this.supabase.downLoadImage(src)).data.publicUrl
@@ -83,7 +106,8 @@ export class GameService {
       for (const card of this.cards) {
         card.shown = false
       }
-    } else {
+    }
+    else {
       for (const s of this.suit) {
         for (const [index, c] of this.casing.entries()) {
           const color = s === 'diamonds' || s === 'hearts' ? "red" : "black"
@@ -115,7 +139,8 @@ export class GameService {
         card.stack = `bottom-${num}`
         this.stacks.push(`bottom-${num}`)
         card.shown = isLast
-      } else {
+      }
+      else {
         card.stack = `hiddenStore`
       }
     }
@@ -123,7 +148,9 @@ export class GameService {
   }
 
   shuffle() {
-    if (!this.cards.length) return console.error('cards object not defined')
+    if (!this.cards.length) {
+      return console.error('cards object not defined')
+    }
     const newCards = [...this.cards]
     let m = newCards.length, t, i
     while (m) {
@@ -137,7 +164,9 @@ export class GameService {
 
   async getFromHiddenStore(card: Card) {
     const index = this.cards.findIndex(c => c.id === card.id)
-    if (!index) return
+    if (!index) {
+      return
+    }
     this.cards.splice(index, 1)
     card.shown = true
     card.stack = 'shownStore'
@@ -164,10 +193,17 @@ export class GameService {
     const lastCard = this.cards.filter(c => c.stack === newStack).at(-1)
     //console.log(lastCard)
     if (lastCard) {
-      if (priority === 1 && lastCard.color === cards[0].color) return console.error(`wrong color: ${priority}, ${lastCard.color}, ${cards[0].color}`)
-      if (priority === -1 && lastCard.suit !== cards[0].suit) return console.error(`wrong suit in final stack: ${priority}, ${lastCard.suit}, ${cards[0].suit}`)
-      if (lastCard.priority - cards[0].priority !== 1 * priority) return console.error(`wrong priority: ${priority}, ${lastCard.priority}, ${cards[0].priority}`)
-    } else if ((cards[0].casing !== 'king' && priority === 1) || (cards[0].casing !== 'ace' && priority === -1)) {
+      if (priority === 1 && lastCard.color === cards[0].color) {
+        return console.error(`wrong color: ${priority}, ${lastCard.color}, ${cards[0].color}`)
+      }
+      if (priority === -1 && lastCard.suit !== cards[0].suit) {
+        return console.error(`wrong suit in final stack: ${priority}, ${lastCard.suit}, ${cards[0].suit}`)
+      }
+      if (lastCard.priority - cards[0].priority !== 1 * priority) {
+        return console.error(`wrong priority: ${priority}, ${lastCard.priority}, ${cards[0].priority}`)
+      }
+    }
+    else if ((cards[0].casing !== 'king' && priority === 1) || (cards[0].casing !== 'ace' && priority === -1)) {
       return console.error(`you can't put card on empty stack if it not king or ace (if priority===-1): ${priority}, ${cards[0].casing}`)
     }
     for (const card of cards) {
@@ -189,9 +225,13 @@ export class GameService {
 
   finalSort() {
     const storeLength = this.cards.filter((card) => card.stack.includes('Store')).length
-    if (storeLength) return
+    if (storeLength) {
+      return
+    }
     const hiddenBottomCards = this.cards.filter((card) => card.stack.includes('bottom') && !card.shown).length
-    if (hiddenBottomCards) return
+    if (hiddenBottomCards) {
+      return
+    }
     let excludeStack: string[] = []
     let bottomCards = this.cards.filter((card) => card.stack.includes('bottom'))
     while (bottomCards.length) {
@@ -202,7 +242,8 @@ export class GameService {
         this.changeStack([lastCard], stack).then(() => console.log(lastCard.id, 'was moved to ', stack, ' stack'))
         bottomCards = this.cards.filter((card) => card.stack.includes('bottom'))
         excludeStack = []
-      } else {
+      }
+      else {
         excludeStack.push(lastCard.stack)
         bottomCards = this.cards.filter((card) => card.stack.includes('bottom') && !excludeStack.includes(card.stack))
       }

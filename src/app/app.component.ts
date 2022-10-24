@@ -5,6 +5,7 @@ import pkg from "../../package.json"
 import {Session} from "@supabase/supabase-js";
 import {MatDialog, MatDialogRef} from "@angular/material/dialog";
 import {AuthComponent} from "./auth/auth.component";
+import {timer} from "rxjs";
 
 @Component({
   selector: 'app-root',
@@ -17,6 +18,8 @@ export class AppComponent implements OnInit {
   version = pkg.version
   loading: boolean = false
   dialogRef: MatDialogRef<any> | null = null;
+  timerNum: number = 0
+  timerStr: string = '00:00:00'
 
   get user() {
     return this.session?.user
@@ -47,6 +50,21 @@ export class AppComponent implements OnInit {
         }
       })
     }
+    const convertToTime = () => {
+      if (this.game.state === 'active') {
+        const time = this.game.gameTime
+        const hours = Math.floor(time / 3600)
+        const hoursStr = hours.toString().padStart(2, '0')
+        const minutes = Math.floor((time - (hours * 3600)) / 60)
+        const minutesStr = minutes.toString().padStart(2, '0')
+        const seconds = time - (hours * 3600) - (minutes * 60)
+        const secondsStr = seconds.toString().padStart(2, '0')
+        this.timerStr = `${hoursStr}:${minutesStr}:${secondsStr}`
+        this.game.gameTime++
+      }
+    }
+    const source = timer(1000, 1000)
+    source.subscribe(() => convertToTime())
   }
 
 
@@ -56,6 +74,7 @@ export class AppComponent implements OnInit {
 
 
   openDialog() {
+    this.game.state = 'paused'
     this.dialogRef = this.dialog.open(AuthComponent, {
       id: "loginDialog",
       width: '50vw',

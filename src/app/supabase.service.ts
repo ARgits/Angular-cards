@@ -36,6 +36,12 @@ export class SupabaseService {
     return await this.supabase.auth.signUp({email, password})
   }
 
+  async updateUser(update: {}) {
+    return await this.supabase.auth.updateUser({
+      data: update
+    })
+  }
+
   signOut() {
     return this.supabase.auth.signOut()
   }

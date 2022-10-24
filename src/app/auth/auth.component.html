@@ -48,9 +48,9 @@
   <button mat-raised-button class="play" (click)="playWithoutLogin()">
     Play<span *ngIf="!user"> without login</span>!
   </button>
-  <button mat-raised-button class="close" *ngIf="user">X</button>
+  <button mat-raised-button class="close" *ngIf="user" (click)="close()">X</button>
   <div *ngIf="downloadStarts" class="progress">
-    <mat-progress-bar  mode="determinate" [value]="progress"></mat-progress-bar>
+    <mat-progress-bar mode="determinate" [value]="progress"></mat-progress-bar>
     <span class="percentage">
       {{progress.toFixed(0)}}%
     </span>
