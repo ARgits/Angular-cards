@@ -18,7 +18,6 @@ export class AppComponent implements OnInit {
   version = pkg.version
   loading: boolean = false
   dialogRef: MatDialogRef<any> | null = null;
-  timerNum: number = 0
   timerStr: string = '00:00:00'
 
   get user() {
@@ -51,7 +50,7 @@ export class AppComponent implements OnInit {
       })
     }
     const convertToTime = () => {
-      if (this.game.state === 'active') {
+      if (this.game.state === 'active' && !document.hidden) {
         const time = this.game.gameTime
         const hours = Math.floor(time / 3600)
         const hoursStr = hours.toString().padStart(2, '0')

@@ -29,7 +29,7 @@ export class AuthComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  async handleLogin(email: string, password: string) {
+  async handleSignIn(email: string, password: string) {
     try {
       this.loading = true
       const user = await this.supabase.signIn(email, password)
@@ -52,7 +52,7 @@ export class AuthComponent implements OnInit {
   async handleSignUp(email: string, password: string) {
     try {
       this.loading = true
-      await this.supabase.signUp(email, password)
+      await this.supabase.signUp(email,password)
     } catch (error) {
       //@ts-ignore
       alert(error.error_description || error.message)
@@ -95,6 +95,7 @@ export class AuthComponent implements OnInit {
     if (data) {
       this.images = data.filter(img => img.name !== '.emptyFolderPlaceholder').map((img) => this.supabase.cards.getPublicUrl(`default/${img.name}`).data.publicUrl);
     }
+    console.log(this.images)
 
   }
 

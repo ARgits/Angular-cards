@@ -38,8 +38,11 @@ export class GameService {
       this.callVictoryDialog()
       this.state = 'paused'
       if (this.user) {
-        const time = this.user.user_metadata['time'] || [this.gameTime]
-        this.supabase.updateUser({data: {time}}).then(() => console.log('user data successfully updated'))
+        const {timeRecords, timeBest} = this.user.user_metadata
+        timeRecords.push(this.gameTime)
+        if (timeBest > this.gameTime) {
+          this.supabase.updateUser({timeRecords, timeBest: this.gameTime}).then((value) => console.log('user data successfully updated: ', value))
+        }
       }
     }
   }

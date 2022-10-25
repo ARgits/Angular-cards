@@ -26,7 +26,7 @@
           <input matInput #password type="password"/>
         </mat-form-field>
         <button mat-raised-button *ngIf="stage==='login'" type="submit"
-                (click)="handleLogin(email.value,password.value)"
+                (click)="handleSignIn(email.value,password.value)"
                 [disabled]="loading">
           {{loading ? "Loading" : "SignIn"}}
         </button>
