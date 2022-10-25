@@ -17,10 +17,10 @@
           <mat-label>Email</mat-label>
           <input matInput #email type="email"/>
         </mat-form-field>
-        <mat-form-field *ngIf="stage==='login'">
+        <!--<mat-form-field *ngIf="stage==='login'">
           <mat-label>Login</mat-label>
           <input matInput #login type="text"/>
-        </mat-form-field>
+        </mat-form-field>-->
         <mat-form-field>
           <mat-label>Password</mat-label>
           <input matInput #password type="password"/>
@@ -38,9 +38,7 @@
 
       </div>
     </div>
-    <div *ngIf="downloadStarts">
-      <img hidden *ngFor="let img of images" [src]="img" alt="card" (load)="setProgress()"/>
-    </div>
+
   </ng-template>
   <div style="text-align: center">
     or
@@ -54,5 +52,6 @@
     <span class="percentage">
       {{progress.toFixed(0)}}%
     </span>
+    <img hidden *ngFor="let img of images" [src]="img" alt="card" (load)="setProgress()"/>
   </div>
 </div>
