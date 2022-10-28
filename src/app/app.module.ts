@@ -15,6 +15,7 @@ import {MatButtonModule} from "@angular/material/button";
 import {MatFormFieldModule} from "@angular/material/form-field";
 import {MatInputModule} from "@angular/material/input";
 import { VictoryDialogComponent } from './victory-dialog/victory-dialog.component';
+import { TimerComponent } from './timer/timer.component';
 
 @NgModule({
   declarations: [
@@ -23,6 +24,7 @@ import { VictoryDialogComponent } from './victory-dialog/victory-dialog.componen
     StackComponent,
     AuthComponent,
     VictoryDialogComponent,
+    TimerComponent,
   ],
   imports: [
     BrowserModule,

@@ -5,6 +5,7 @@ import {FileObject} from "@supabase/storage-js";
 import {VictoryDialogComponent} from "./victory-dialog/victory-dialog.component";
 import {MatDialog, MatDialogRef} from "@angular/material/dialog";
 import {Session} from "@supabase/supabase-js";
+import {TimerService} from "./timer.service";
 
 @Injectable({
   providedIn: 'root'
@@ -21,16 +22,18 @@ export class GameService {
   dialogRef: MatDialogRef<any> | null = null;
   session: Session | null = null
   state: string = 'paused'
-  gameTime: number = 0
+
 
   get user() {
     return this.session?.user
   }
 
   constructor(private readonly supabase: SupabaseService,
-              public dialog: MatDialog,) {
+              public dialog: MatDialog,
+              private readonly timer: TimerService) {
     this.theme = 'default'
     supabase.getSession().then(({data: {session}}) => this.session = session)
+
   }
 
   set gameFinished(isFinished: boolean) {
@@ -38,11 +41,10 @@ export class GameService {
       this.callVictoryDialog()
       this.state = 'paused'
       if (this.user) {
-        const {timeRecords, timeBest} = this.user.user_metadata
-        timeRecords.push(this.gameTime)
-        if (timeBest > this.gameTime) {
-          this.supabase.updateUser({timeRecords, timeBest: this.gameTime}).then((value) => console.log('user data successfully updated: ', value))
-        }
+        const {timeRecords} = this.user.user_metadata
+        timeRecords.push(this.timer.gameTime)
+        const timeBest = Math.min(...timeRecords)
+        this.supabase.updateUser({timeRecords, timeBest}).then((value) => console.log('user data successfully updated: ', value))
       }
     }
   }
@@ -76,7 +78,7 @@ export class GameService {
         card.srcBack = <string>(await this.supabase.downLoadImage("default/Card_back.svg")).data.publicUrl
       }
       this.state = 'active'
-      this.gameTime = 0
+      this.timer.gameTime = 0
     } catch ({message}) {
       console.error('Error getting cards from Cards Game object:  ', message)
     }
@@ -91,7 +93,7 @@ export class GameService {
       this.shuffle()
       this.sortCardsByStack()
       this.state = 'active'
-      this.gameTime = 0
+      this.timer.gameTime = 0
     }
   }
 
