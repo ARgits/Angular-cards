@@ -1,6 +1,6 @@
 {
   "name": "angular-cards",
-  "version": "1.1.7",
+  "version": "1.2.0",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -22,6 +22,8 @@
     "@angular/router": "^14.2.0",
     "@supabase/storage-js": "^1.7.3",
     "@supabase/supabase-js": "^2.0.0-rc.13",
+    "@types/gsap": "^3.0.0",
+    "gsap": "^3.11.3",
     "rxjs": "~7.5.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.11.4"

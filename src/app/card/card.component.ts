@@ -1,36 +1,30 @@
-import {Component, Input, OnInit, SimpleChanges} from '@angular/core';
+import {Component, Input, OnInit, ViewChild} from '@angular/core';
 import {GameService} from "../game.service";
-import {animate, state, style, transition, trigger} from "@angular/animations";
 import {Card} from "../Card";
+import gsap from "gsap";
 
 @Component({
   selector: 'app-card',
   templateUrl: './card.component.html',
   styleUrls: ['./card.component.scss'],
-  animations: [
-    trigger('card', [
-      state('initial', style({top: '*'})),
-      state('moving', style({top: '*'})),
-      transition('initial=>moving', animate('1s')),
-    ])
-  ]
 })
 export class CardComponent implements OnInit {
-
+  @ViewChild('card') cardElement: any
   @Input() cardObject: Card | null = null
   @Input() index: number = 0
+
 
   constructor(private readonly game: GameService,) {
   }
 
+
   getClass() {
     let cls = `card-${this.index}`
-    cls += ` ${this.cardObject?.stack.slice(0, this.cardObject?.stack.indexOf('-'))}`
+    cls += ` ${this.cardObject?.stack}`
     return cls
   }
 
   getSrc() {
-
     return this.cardObject?.shown ? this.cardObject.srcCasing : this.cardObject?.srcBack ?? ''
   }
 
@@ -64,7 +58,7 @@ export class CardComponent implements OnInit {
     return (!this.cardObject?.shown && this.index !== stackArr.length - 1) || this.cardObject?.stack === 'hiddenStore'
   }
 
-  sendToFinalStack() {
+  async sendToFinalStack() {
     if (!this.cardObject) {
       return
     }
@@ -84,19 +78,24 @@ export class CardComponent implements OnInit {
       })
       stackId = `final-${index}`
     }
-    console.log(document.getElementsByClassName(stackId)[0])
-    this.game.changeStack([this.cardObject], stackId)
-    this.game.finalSort()
-  }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    if (!this.index) {
-      console.log('card changes', changes)
+    const check = this.game.checkCorrectCardPosition(this.cardObject, stackId)
+    if (!check) {
+      return;
     }
-  }
-
-  forbidDownload() {
-    return false
+    const {x,y} = document.getElementsByClassName(stackId)[0].getBoundingClientRect()
+    const cardCoordinates = this.cardElement.nativeElement.getBoundingClientRect()
+    const tl = gsap.timeline({yoyo: true})
+    tl.set(this.cardElement.nativeElement, {css: {zIndex: 1}})
+      .to(this.cardElement.nativeElement, {
+        x: x - cardCoordinates.x,
+        y: y - cardCoordinates.y,
+        onComplete: () => {
+          this.game.changeStack([this.cardObject!], stackId);
+          this.game.finalSort()
+        },
+        duration: 0.25,
+      })
   }
 
 }

@@ -3,7 +3,7 @@
     position: absolute;
     top: calc(var(--vertical-margin) * 2 * $i);
 
-    &:not(.bottom) {
+    &:not(img[class*='bottom-']) {
       top: 0
     }
   }
