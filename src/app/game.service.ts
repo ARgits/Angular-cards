@@ -274,6 +274,7 @@ export class GameService {
             y: y - cardElementXandY.y,
             onStart: () => {this.cardChanging = true},
             onComplete: () => {
+              this.cardChanging=false
               this.changeStack([lastCard], stack).then(() => console.log(lastCard.id, 'was moved to ', stack, ' stack'))
               this.finalSort()
             },

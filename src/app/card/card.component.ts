@@ -90,7 +90,11 @@ export class CardComponent implements OnInit {
       .to(this.cardElement.nativeElement, {
         x: x - cardCoordinates.x,
         y: y - cardCoordinates.y,
+        onStart:()=>{
+          this.game.cardChanging=true
+        },
         onComplete: () => {
+          this.game.cardChanging=false
           this.game.changeStack([this.cardObject!], stackId);
           this.game.finalSort()
         },
