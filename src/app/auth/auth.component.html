@@ -5,6 +5,8 @@
       {{loading ? "Signing out" : "SignOut"}}
     </button>
   </div>
+  <label for="background">Background color</label>
+  <input id="background" matInput type="color" (input)="changeBackgroundColor()" [(ngModel)]="backgroundColor"/>
   <ng-template #loginBlock>
     <div [class]="'auth '+stage">
       <div class="header">

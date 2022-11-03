@@ -62,39 +62,27 @@ export class CardComponent implements OnInit {
     if (!this.cardObject) {
       return
     }
-    const {shown, suit,} = this.cardObject
+    const {shown, } = this.cardObject
     if (!shown) {
       return
     }
-    let stackId = this.game.cards?.filter(c => c.suit === suit && c.stack.includes('final'))[0]?.stack
-    if (!stackId) {
-      const index = [1, 2, 3, 4].reduce((previousValue, currentValue) => {
-        if (this.game.cards?.filter(c => c.stack === `final-${previousValue}`).length) {
-          return currentValue
-        }
-        else {
-          return previousValue
-        }
-      })
-      stackId = `final-${index}`
-    }
-
+    const stackId = this.game.getFinalStackForCard(this.cardObject)
     const check = this.game.checkCorrectCardPosition(this.cardObject, stackId)
     if (!check) {
       return;
     }
-    const {x,y} = document.getElementsByClassName(stackId)[0].getBoundingClientRect()
+    const {x, y} = document.getElementsByClassName(stackId)[0].getBoundingClientRect()
     const cardCoordinates = this.cardElement.nativeElement.getBoundingClientRect()
     const tl = gsap.timeline({yoyo: true})
     tl.set(this.cardElement.nativeElement, {css: {zIndex: 1}})
       .to(this.cardElement.nativeElement, {
         x: x - cardCoordinates.x,
         y: y - cardCoordinates.y,
-        onStart:()=>{
-          this.game.cardChanging=true
+        onStart: () => {
+          this.game.cardChanging = true
         },
         onComplete: () => {
-          this.game.cardChanging=false
+          this.game.cardChanging = false
           this.game.changeStack([this.cardObject!], stackId);
           this.game.finalSort()
         },

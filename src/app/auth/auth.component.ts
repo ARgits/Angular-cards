@@ -18,12 +18,25 @@ export class AuthComponent implements OnInit {
   images: string[] = []
   progress: number = 0
   downloadStarts: boolean = false
+  backgroundColor: string = '#008000'
 
 
   constructor(private readonly game: GameService,
               private readonly supabase: SupabaseService,
               public dialogRef: MatDialogRef<AuthComponent>) {
     dialogRef.disableClose = true
+  }
+
+  ngAfterViewInit() {
+    const componentToHex = (c: number) => {
+      const hex = c.toString(16)
+      return hex.length == 1 ? "0" + hex : hex;
+    }
+    const rgbToHex = (r: number, g: number, b: number) => {
+      return '#' + componentToHex(r) + componentToHex(g) + componentToHex(b)
+    }
+    const backColor = getComputedStyle(document.body).getPropertyValue('background-color').slice(4).split(' ').map(c => parseInt(c))
+    this.backgroundColor = rgbToHex(backColor[0], backColor[1], backColor[2])
   }
 
   ngOnInit(): void {
@@ -52,7 +65,7 @@ export class AuthComponent implements OnInit {
   async handleSignUp(email: string, password: string) {
     try {
       this.loading = true
-      await this.supabase.signUp(email,password)
+      await this.supabase.signUp(email, password)
     } catch (error) {
       //@ts-ignore
       alert(error.error_description || error.message)
@@ -112,6 +125,10 @@ export class AuthComponent implements OnInit {
       }, 1000)
       this.downloadStarts = false
     }
+  }
+
+  changeBackgroundColor() {
+    document.body.style.backgroundColor = this.backgroundColor
   }
 
 

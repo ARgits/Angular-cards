@@ -38,17 +38,12 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     this.supabase.authChanges((changeEvent, session) => {
       this.session = session;
+      if(this.session) console.log(this.user)
     })
-    if (!this.session) {
-      this.supabase.getSession().then(value => {
-        this.session = value.data.session;
-        if (!this.user) {
-          this.openDialog()
-        }
-      })
-    }
-
+    this.openDialog()
   }
+
+
 
 
   startNewGame() {
@@ -64,7 +59,8 @@ export class AppComponent implements OnInit {
       height: '50vh',
       data: {
         user: this.user
-      }
+      },
+      hasBackdrop:false,
     })
     this.dialogRef.afterClosed().subscribe(() => {
       this.dialogRef = null

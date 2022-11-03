@@ -222,16 +222,13 @@ export class GameService {
     if (this.cardChanging) {
       return console.error(`other card already changing`)
     }
-    console.log('start of changeStack method')
     const oldStack = cards[0].stack
     const priority = newStack.includes('final') ? -1 : 1
-    //console.log(lastCard)
     const check = this.checkCorrectCardPosition(cards[0], newStack)
     if (!check) {
       return
     }
     for (const card of cards) {
-      //console.log(card)
       const cardIndex = this.cards.findIndex(c => c.id === card.id)
       this.cards?.splice(cardIndex, 1)
       card.stack = newStack
@@ -248,44 +245,59 @@ export class GameService {
     this.gameFinished = this.cards.length === this.cards.filter(card => card.stack.includes('final')).length
   }
 
-  finalSort(excludeStack: string[] = []) {
-    const storeLength = this.cards.filter((card) => card.stack.includes('Store')).length
+  finalSort(excludeStack: string[] = []): void {
+    const storeLength = this.cards.filter((card) => card.stack.includes('hiddenStore')).length
     if (storeLength) {
       return
     }
-    const hiddenBottomCards = this.cards.filter((card) => card.stack.includes('bottom') && !card.shown).length
-    if (hiddenBottomCards) {
-      return
+    const shownCards = this.cards.filter((card) => card.shown && !excludeStack.includes(card.stack))
+    if (!shownCards.length) {
+      return;
     }
-    const bottomCards = this.cards.filter((card) => card.stack.includes('bottom') && !excludeStack.includes(card.stack))
-    if (bottomCards.length) {
-      const lastCard = bottomCards.at(-1)!
-      const {priority, stack} = this.cards.filter((card) =>
-        card.stack.includes('final') && card.suit === lastCard.suit).at(-1)!
-      if (lastCard.priority - priority === 1) {
-        const lastCardIndex = this.cards.filter(c => c.stack === lastCard.stack).length - 1
-        const cardElement = document.getElementsByClassName(`${lastCard.stack} card-${lastCardIndex}`)[0]
-        const cardElementXandY = cardElement.getBoundingClientRect()
-        const {x, y} = document.getElementsByClassName(stack)[0].getBoundingClientRect()
-        const tl = gsap.timeline()
-        tl.set(cardElement, {css: {zIndex: 1}})
-          .to(cardElement, {
-            x: x - cardElementXandY.x,
-            y: y - cardElementXandY.y,
-            onStart: () => {this.cardChanging = true},
-            onComplete: () => {
-              this.cardChanging=false
-              this.changeStack([lastCard], stack).then(() => console.log(lastCard.id, 'was moved to ', stack, ' stack'))
-              this.finalSort()
-            },
-            duration: .25,
-          })
-      }
-      else {
-        excludeStack.push(lastCard.stack)
-        this.finalSort(excludeStack)
-      }
+    const lastCard = shownCards.at(-1)!
+    const finalStack = this.getFinalStackForCard(lastCard)
+    const check = this.checkCorrectCardPosition(lastCard, finalStack)
+    if (check) {
+      const lastCardIndex = this.cards.filter(c => c.stack === lastCard.stack).length - 1
+      const cardElement = document.getElementsByClassName(`${lastCard.stack} card-${lastCardIndex}`)[0]
+      const cardElementXandY = cardElement.getBoundingClientRect()
+      const {x, y} = document.getElementsByClassName(finalStack)[0].getBoundingClientRect()
+      const tl = gsap.timeline()
+      tl.set(cardElement, {css: {zIndex: 1}})
+        .to(cardElement, {
+          x: x - cardElementXandY.x,
+          y: y - cardElementXandY.y,
+          onStart: () => {this.cardChanging = true},
+          onComplete: () => {
+            this.cardChanging = false
+            this.changeStack([lastCard], finalStack).then(() => console.log(lastCard.id, 'was moved to ', finalStack, ' stack'))
+            this.finalSort()
+          },
+          duration: .25,
+        })
     }
+    else {
+      excludeStack.push(lastCard.stack)
+      this.finalSort(excludeStack)
+    }
+    console.log('final sort excluded stacks: ', excludeStack)
+  }
+
+  getFinalStackForCard(card: Card) {
+    const {suit} = card
+    let stackId = this.cards.filter(c => c.suit === suit && c.stack.includes('final'))[0]?.stack
+    if (!stackId) {
+      const index = [1, 2, 3, 4].reduce((previousValue, currentValue) => {
+        if (this.cards.filter(c => c.stack === `final-${previousValue}`).length) {
+          return currentValue
+        }
+        else {
+          return previousValue
+        }
+      })
+      stackId = `final-${index}`
+    }
+    return stackId
   }
 
   callVictoryDialog() {
