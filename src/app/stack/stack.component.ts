@@ -10,17 +10,18 @@ import {CdkDragDrop} from "@angular/cdk/drag-drop";
 export class StackComponent implements OnInit {
   @Input() stackId: string = ''
 
-  get stackArr() {
-    if (this.game.cards) {
-      return this.game.cards.filter((c) => c.stack === this.stackId)
-    }
-    return []
-  }
 
   constructor(private readonly game: GameService) {
   }
 
   ngOnInit(): void {
+  }
+
+  get stackArr() {
+    if (this.game.cards) {
+      return this.game.cards.filter((c) => c.stack === this.stackId)
+    }
+    return []
   }
 
   getClass() {

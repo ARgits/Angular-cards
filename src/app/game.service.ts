@@ -24,6 +24,8 @@ export class GameService {
   session: Session | null = null
   state: string = 'paused'
   cardChanging: boolean = false
+  isActiveAnimation: boolean = false
+  private cardsDistribution: number[] = []
 
   get user() {
     return this.session?.user
@@ -34,7 +36,7 @@ export class GameService {
               private readonly timer: TimerService) {
     this.theme = 'default'
     supabase.getSession().then(({data: {session}}) => this.session = session)
-
+    this.cardsDistribution = ([] as number[]).concat(...Array(this.numberOfStack).fill(null).map((item, index) => Array(index + 1).fill(null).map(() => index + 1)))
   }
 
   set gameFinished(isFinished: boolean) {
@@ -66,7 +68,6 @@ export class GameService {
         return
       }
       this.shuffle()
-      this.sortCardsByStack()
       const cardsBucket = await this.supabase.cards
       const {data} = await cardsBucket.list(theme)
       if (!data) {
@@ -78,6 +79,7 @@ export class GameService {
         card.srcCasing = await this.getCardSRC(card)
         card.srcBack = <string>(await this.supabase.downLoadImage("default/Card_back.svg")).data.publicUrl
       }
+      this.sortCardsByStack()
       this.state = 'active'
       this.timer.gameTime = 0
     } catch ({message}) {
@@ -125,7 +127,7 @@ export class GameService {
             width: 138,
             priority: index,
             srcCasing: '',
-            stack: '',
+            stack: 'hiddenStore',
             shown: false,
             color,
             srcBack: ''
@@ -136,21 +138,19 @@ export class GameService {
     }
   }
 
-  sortCardsByStack() {
-    const cardsDistribution = ([] as number[]).concat(...Array(this.numberOfStack).fill(null).map((item, index) => Array(index + 1).fill(null).map(() => index + 1)))
-    for (const [index, card] of this.cards.entries()) {
-      if (index < cardsDistribution.length) {
-        const num = cardsDistribution[index]
-        const isLast = cardsDistribution[index + 1] !== num
-        card.stack = `bottom-${num}`
-        this.stacks.push(`bottom-${num}`)
-        card.shown = isLast
+  sortCardsByStack(index: number = 0) {
+    const card = this.cards[index]
+    const num = this.cardsDistribution[index]
+    const isLast = this.cardsDistribution[index + 1] !== num
+    this.stacks.push(`bottom-${num}`)
+    card.shown = isLast
+    console.log(card.id, ' is moving')
+    this.moveCardToStack(card, `bottom-${num}`, .75, () => {
+      this.changeStack([card], `bottom-${num}`);
+      if (index < this.cardsDistribution.length - 1) {
+        this.sortCardsByStack(index + 1)
       }
-      else {
-        card.stack = `hiddenStore`
-      }
-    }
-
+    })
   }
 
   shuffle() {
@@ -218,16 +218,17 @@ export class GameService {
   }
 
   // @ts-ignore
-  async changeStack(cards: Card[], newStack: string) {
+  changeStack(cards: Card[], newStack: string) {
     if (this.cardChanging) {
       return console.error(`other card already changing`)
     }
+    console.log('start to move cards: ', cards)
     const oldStack = cards[0].stack
     const priority = newStack.includes('final') ? -1 : 1
-    const check = this.checkCorrectCardPosition(cards[0], newStack)
+    /*const check = this.checkCorrectCardPosition(cards[0], newStack)
     if (!check) {
       return
-    }
+    }*/
     for (const card of cards) {
       const cardIndex = this.cards.findIndex(c => c.id === card.id)
       this.cards?.splice(cardIndex, 1)
@@ -243,13 +244,14 @@ export class GameService {
     this.cards = [...this.cards, ...newCards]
     this.cardChanging = false
     this.gameFinished = this.cards.length === this.cards.filter(card => card.stack.includes('final')).length
+    console.log('finished move cards: ', cards)
   }
 
   finalSort(excludeStack: string[] = []): void {
-    const storeLength = this.cards.filter((card) => card.stack.includes('hiddenStore')).length
+    /*const storeLength = this.cards.filter((card) => card.stack.includes('hiddenStore')).length
     if (storeLength) {
       return
-    }
+    }*/
     const shownCards = this.cards.filter((card) => card.shown && !excludeStack.includes(card.stack))
     if (!shownCards.length) {
       return;
@@ -270,7 +272,7 @@ export class GameService {
           onStart: () => {this.cardChanging = true},
           onComplete: () => {
             this.cardChanging = false
-            this.changeStack([lastCard], finalStack).then(() => console.log(lastCard.id, 'was moved to ', finalStack, ' stack'))
+            this.changeStack([lastCard], finalStack)
             this.finalSort()
           },
           duration: .25,
@@ -300,14 +302,35 @@ export class GameService {
     return stackId
   }
 
+  moveCardToStack(card: Card, stackId: string, duration: number = .25, onComplete = () => {this.changeStack([card], stackId)}): void {
+
+    const oldCardIndex = this.cards.findIndex(c => c.id === card.id)
+    const newCardIndex = this.cards.filter(c => c.stack === stackId).length
+    const cardElement = document.getElementsByClassName(`${card.stack} card-${oldCardIndex}`)[0]
+    const cardElementXandY = cardElement.getBoundingClientRect()
+    const {x, y} = document.getElementsByClassName(stackId)[0].getBoundingClientRect()
+    const offsetY = stackId.includes('bottom') ? window.innerHeight * .01 * newCardIndex * 2 : 0
+    const tl = gsap.timeline()
+
+    tl.set(cardElement, {css: {zIndex: 1}})
+      .to(cardElement, {
+        x: x - cardElementXandY.x,
+        y: y + offsetY - cardElementXandY.y,
+        //onStart: () => {this.cardChanging = true},
+        onStart: () => {this.isActiveAnimation = true},
+        onComplete,
+        duration,
+      })
+  }
+
   callVictoryDialog() {
     this.dialogRef = this.dialog.open(VictoryDialogComponent, {
       id: 'victoryDialog',
-      width: '25vw',
-      height: '25vh',
+      width: 'fit-content',
     })
     this.dialogRef.afterClosed().subscribe(() => {
       this.dialogRef = null
     })
   }
+
 }

@@ -50,7 +50,6 @@ export class AuthComponent implements OnInit {
         console.log(user.error)
       }
       if (user.data) {
-        console.log(user.data)
         this.user = user.data.user
         this.session = user.data.session
       }
@@ -108,14 +107,11 @@ export class AuthComponent implements OnInit {
     if (data) {
       this.images = data.filter(img => img.name !== '.emptyFolderPlaceholder').map((img) => this.supabase.cards.getPublicUrl(`default/${img.name}`).data.publicUrl);
     }
-    console.log(this.images)
 
   }
 
   setProgress() {
-    console.log('изображение загружается', this.images.length)
     this.progress = Math.min(this.progress + .001 + 100 / this.images.length, 100)
-    console.log('изображение загружено, прогресс: ', this.progress, '%')
     if (this.progress === 100 && this.downloadStarts) {
       setTimeout(() => {
         this.downloadStarts = false;

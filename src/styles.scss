@@ -7,6 +7,9 @@ body {
 #loginDialog{
   padding: 2.5vh 2.5vw;
 }
+#victoryDialog{
+  aspect-ratio: 1/1;
+}
 :root {
   --card-height: 20vmin;
   --card-width: calc(20vmin / 1.5);
