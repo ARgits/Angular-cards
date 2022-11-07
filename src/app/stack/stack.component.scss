@@ -11,14 +11,14 @@
   }
 
   &.final-1 {
-    margin-left: calc(var(--horizontal-margin)*5);
+    margin-left: calc(var(--horizontal-margin) * 1 + var(--card-width));
   }
 }
 
 
 @for $i from 1 through 20 {
   .length-#{$i}:not([class^="final-"]) {
-    height: calc(var(--card-height) + $i * (var(--vertical-margin) *2));
+    height: calc(var(--card-height) + $i * (var(--vertical-margin) * 2));
   }
 }
 

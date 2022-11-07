@@ -1,13 +1,14 @@
 .main {
   display: flex;
   flex-direction: column;
-  margin: 1vh auto;
+  margin: 0 auto;
+  width: fit-content;
 }
 
 .top, .bottom {
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
+  column-gap: calc(var(--horizontal-margin)*1);
 }
 .top{
   margin-bottom: 2vmax;

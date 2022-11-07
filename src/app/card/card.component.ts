@@ -1,7 +1,7 @@
 import {Component, Input, OnInit, ViewChild} from '@angular/core';
 import {GameService} from "../game.service";
 import {Card} from "../Card";
-import gsap from "gsap";
+import {AnimationService} from "../animation.service";
 
 @Component({
   selector: 'app-card',
@@ -14,7 +14,8 @@ export class CardComponent implements OnInit {
   @Input() index: number = 0
 
 
-  constructor(private readonly game: GameService,) {
+  constructor(private readonly game: GameService,
+              private readonly animate: AnimationService,) {
   }
 
 
@@ -62,7 +63,7 @@ export class CardComponent implements OnInit {
     if (!this.cardObject) {
       return
     }
-    const {shown, } = this.cardObject
+    const {shown,} = this.cardObject
     if (!shown) {
       return
     }
@@ -71,23 +72,10 @@ export class CardComponent implements OnInit {
     if (!check) {
       return;
     }
-    const {x, y} = document.getElementsByClassName(stackId)[0].getBoundingClientRect()
-    const cardCoordinates = this.cardElement.nativeElement.getBoundingClientRect()
-    const tl = gsap.timeline({yoyo: true})
-    tl.set(this.cardElement.nativeElement, {css: {zIndex: 1}})
-      .to(this.cardElement.nativeElement, {
-        x: x - cardCoordinates.x,
-        y: y - cardCoordinates.y,
-        onStart: () => {
-          this.game.cardChanging = true
-        },
-        onComplete: () => {
-          this.game.cardChanging = false
-          this.game.changeStack([this.cardObject!], stackId);
-          this.game.finalSort()
-        },
-        duration: 0.25,
-      })
+    this.animate.moveCard(this.cardObject, stackId,() => {
+      this.game.changeStack([this.cardObject!], stackId);
+      this.game.finalSort()
+    })
   }
 
 }

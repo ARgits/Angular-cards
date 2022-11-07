@@ -6,7 +6,8 @@ import {VictoryDialogComponent} from "./victory-dialog/victory-dialog.component"
 import {MatDialog, MatDialogRef} from "@angular/material/dialog";
 import {Session} from "@supabase/supabase-js";
 import {TimerService} from "./timer.service";
-import gsap from "gsap";
+
+import {AnimationService} from "./animation.service";
 
 @Injectable({
   providedIn: 'root'
@@ -19,13 +20,12 @@ export class GameService {
   casing: string[] = ['ace', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'jack', 'queen', 'king']
   theme: string
   cardsBucketData: FileObject[] | undefined
-  stacks: string[] = ['hiddenStore', 'shownStore', 'final-1', 'final-2', 'final-3', 'final-4']
+  stacks: Set<string> = new Set(['hiddenStore', 'shownStore', 'final-1', 'final-2', 'final-3', 'final-4'])
   dialogRef: MatDialogRef<any> | null = null;
   session: Session | null = null
   state: string = 'paused'
   cardChanging: boolean = false
-  isActiveAnimation: boolean = false
-  private cardsDistribution: number[] = []
+  private readonly cardsDistribution: number[] = []
 
   get user() {
     return this.session?.user
@@ -33,7 +33,8 @@ export class GameService {
 
   constructor(private readonly supabase: SupabaseService,
               public dialog: MatDialog,
-              private readonly timer: TimerService) {
+              private readonly timer: TimerService,
+              private readonly animate: AnimationService) {
     this.theme = 'default'
     supabase.getSession().then(({data: {session}}) => this.session = session)
     this.cardsDistribution = ([] as number[]).concat(...Array(this.numberOfStack).fill(null).map((item, index) => Array(index + 1).fill(null).map(() => index + 1)))
@@ -52,11 +53,9 @@ export class GameService {
     }
   }
 
-  set cardsTheme(theme: string
-  ) {
+  set cardsTheme(theme: string) {
     this.startGame(theme).then(() => {
       console.log('Game has Started')
-
     })
   }
 
@@ -80,8 +79,7 @@ export class GameService {
         card.srcBack = <string>(await this.supabase.downLoadImage("default/Card_back.svg")).data.publicUrl
       }
       this.sortCardsByStack()
-      this.state = 'active'
-      this.timer.gameTime = 0
+
     } catch ({message}) {
       console.error('Error getting cards from Cards Game object:  ', message)
     }
@@ -92,11 +90,21 @@ export class GameService {
       this.startGame('default').then(() => console.log('Game has Started'))
     }
     else {
-      this.createCards()
-      this.shuffle()
-      this.sortCardsByStack()
-      this.state = 'active'
-      this.timer.gameTime = 0
+      const cards = this.cards.filter(c => c.stack !== 'hiddenStore')
+      this.animate.returnToHiddenStore(
+        cards,
+        (id) => {
+          const card = this.cards.find(c=>c.id===id)
+          if(!card) return
+          card.stack = 'hiddenStore';
+          card.shown = false
+        }, () => {
+          console.log('end of return to hidden store animation')
+          this.shuffle()
+          this.sortCardsByStack()
+        })
+      //this.createCards()
+
     }
   }
 
@@ -122,7 +130,7 @@ export class GameService {
           const card: Card = {
             suit: s,
             casing: c,
-            id: `${c}_of_${s}`,
+            id: `card_${c}_of_${s}`,
             height: 200,
             width: 138,
             priority: index,
@@ -138,19 +146,29 @@ export class GameService {
     }
   }
 
-  sortCardsByStack(index: number = 0) {
-    const card = this.cards[index]
-    const num = this.cardsDistribution[index]
-    const isLast = this.cardsDistribution[index + 1] !== num
-    this.stacks.push(`bottom-${num}`)
-    card.shown = isLast
-    console.log(card.id, ' is moving')
-    this.moveCardToStack(card, `bottom-${num}`, .75, () => {
-      this.changeStack([card], `bottom-${num}`);
-      if (index < this.cardsDistribution.length - 1) {
-        this.sortCardsByStack(index + 1)
+  sortCardsByStack() {
+    this.animate.newGameAnimation(this.cardsDistribution,
+      (index) => {
+        //const card = this.cards.filter(c=>c.id===id)[0]
+        const card = this.cards[index]
+        //const index = this.cards.findIndex(c=>c.id===id)
+        const num = this.cardsDistribution[index]
+        card.shown = this.cardsDistribution[index + 1] !== num
+      },
+      (index) => {
+        //const card = this.cards.filter(c=>c.id===id)[0]
+        //const index = this.cards.findIndex(c=>c.id===id)
+        const card = this.cards[index]
+        const num = this.cardsDistribution[index]
+        this.stacks.add(`bottom-${num}`)
+        card.stack = `bottom-${num}`
+      },
+      ()=>{
+      console.log('end of new GameAnimation')
+        this.state = 'active'
+        this.timer.gameTime = 0
       }
-    })
+    )
   }
 
   shuffle() {
@@ -192,7 +210,12 @@ export class GameService {
     this.cards = [...this.cards, ...shownStore.reverse()]
   }
 
-  checkCorrectCardPosition(movingCard: Card, newStack: string) {
+  checkCorrectCardPosition(movingCard
+                             :
+                             Card, newStack
+                             :
+                             string
+  ) {
     const stackPriority = newStack.includes('final') ? -1 : 1
     const lastCard = this.cards.filter(c => c.stack === newStack).at(-1)
     if (lastCard) {
@@ -217,8 +240,13 @@ export class GameService {
     return true
   }
 
-  // @ts-ignore
-  changeStack(cards: Card[], newStack: string) {
+// @ts-ignore
+  changeStack(cards
+                :
+                Card[], newStack
+                :
+                string
+  ) {
     if (this.cardChanging) {
       return console.error(`other card already changing`)
     }
@@ -247,36 +275,29 @@ export class GameService {
     console.log('finished move cards: ', cards)
   }
 
-  finalSort(excludeStack: string[] = []): void {
+  finalSort(excludeStack
+              :
+              string[] = []
+  ):
+    void {
     /*const storeLength = this.cards.filter((card) => card.stack.includes('hiddenStore')).length
     if (storeLength) {
       return
     }*/
     const shownCards = this.cards.filter((card) => card.shown && !excludeStack.includes(card.stack))
-    if (!shownCards.length) {
+    if (!
+      shownCards.length
+    ) {
       return;
     }
     const lastCard = shownCards.at(-1)!
     const finalStack = this.getFinalStackForCard(lastCard)
     const check = this.checkCorrectCardPosition(lastCard, finalStack)
     if (check) {
-      const lastCardIndex = this.cards.filter(c => c.stack === lastCard.stack).length - 1
-      const cardElement = document.getElementsByClassName(`${lastCard.stack} card-${lastCardIndex}`)[0]
-      const cardElementXandY = cardElement.getBoundingClientRect()
-      const {x, y} = document.getElementsByClassName(finalStack)[0].getBoundingClientRect()
-      const tl = gsap.timeline()
-      tl.set(cardElement, {css: {zIndex: 1}})
-        .to(cardElement, {
-          x: x - cardElementXandY.x,
-          y: y - cardElementXandY.y,
-          onStart: () => {this.cardChanging = true},
-          onComplete: () => {
-            this.cardChanging = false
-            this.changeStack([lastCard], finalStack)
-            this.finalSort()
-          },
-          duration: .25,
-        })
+      this.animate.moveCard(lastCard, finalStack, () => {
+        this.changeStack([lastCard], finalStack);
+        this.finalSort()
+      })
     }
     else {
       excludeStack.push(lastCard.stack)
@@ -285,7 +306,10 @@ export class GameService {
     console.log('final sort excluded stacks: ', excludeStack)
   }
 
-  getFinalStackForCard(card: Card) {
+  getFinalStackForCard(card
+                         :
+                         Card
+  ) {
     const {suit} = card
     let stackId = this.cards.filter(c => c.suit === suit && c.stack.includes('final'))[0]?.stack
     if (!stackId) {
@@ -300,27 +324,6 @@ export class GameService {
       stackId = `final-${index}`
     }
     return stackId
-  }
-
-  moveCardToStack(card: Card, stackId: string, duration: number = .25, onComplete = () => {this.changeStack([card], stackId)}): void {
-
-    const oldCardIndex = this.cards.findIndex(c => c.id === card.id)
-    const newCardIndex = this.cards.filter(c => c.stack === stackId).length
-    const cardElement = document.getElementsByClassName(`${card.stack} card-${oldCardIndex}`)[0]
-    const cardElementXandY = cardElement.getBoundingClientRect()
-    const {x, y} = document.getElementsByClassName(stackId)[0].getBoundingClientRect()
-    const offsetY = stackId.includes('bottom') ? window.innerHeight * .01 * newCardIndex * 2 : 0
-    const tl = gsap.timeline()
-
-    tl.set(cardElement, {css: {zIndex: 1}})
-      .to(cardElement, {
-        x: x - cardElementXandY.x,
-        y: y + offsetY - cardElementXandY.y,
-        //onStart: () => {this.cardChanging = true},
-        onStart: () => {this.isActiveAnimation = true},
-        onComplete,
-        duration,
-      })
   }
 
   callVictoryDialog() {

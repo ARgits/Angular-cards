@@ -48,7 +48,7 @@ export class StackComponent implements OnInit {
     if (!this.stackId || this.stackId === 'hiddenStore') {
       return []
     }
-    const dropList = new Set(this.game.stacks.filter((stack) => !stack.includes('store')))
+    const dropList = new Set([...this.game.stacks].filter((stack) => !stack.includes('store')))
     return [...dropList]
   }
 
@@ -58,7 +58,10 @@ export class StackComponent implements OnInit {
       return
     }
     const cards = $event.item.data
-    this.game.changeStack(cards, this.stackId)
+    const check = this.game.checkCorrectCardPosition(cards[0], this.stackId)
+    if (check) {
+      this.game.changeStack(cards, this.stackId)
+    }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
