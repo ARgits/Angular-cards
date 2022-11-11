@@ -1,6 +1,6 @@
 @for $i from 0 through 54 {
   .card-#{$i} {
-    top: calc(var(--vertical-margin) * 2 * $i);
+    top: calc(var(--vertical-margin) * 2 * $i );
   }
 }
 
@@ -12,7 +12,7 @@ img {
   height: var(--card-height);
 
   &:not(img[class*='bottom-']) {
-    top: 0
+    top: 0;
   }
 }
 

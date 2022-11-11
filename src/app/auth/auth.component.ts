@@ -101,11 +101,11 @@ export class AuthComponent implements OnInit {
       return
     }
     console.log('карты не были созданы, загружаем...')
-    const {data} = await this.supabase.cards.list('default')
+    const {data} = await this.supabase.cards.list('webp')
     this.progress = 0
     this.downloadStarts = true
     if (data) {
-      this.images = data.filter(img => img.name !== '.emptyFolderPlaceholder').map((img) => this.supabase.cards.getPublicUrl(`default/${img.name}`).data.publicUrl);
+      this.images = data.filter(img => img.name !== '.emptyFolderPlaceholder').map((img) => this.supabase.cards.getPublicUrl(`webp/${img.name}`).data.publicUrl);
     }
 
   }
@@ -115,7 +115,7 @@ export class AuthComponent implements OnInit {
     if (this.progress === 100 && this.downloadStarts) {
       setTimeout(() => {
         this.downloadStarts = false;
-        this.game.cardsTheme = 'default';
+        this.game.cardsTheme = 'webp';
         this.progress = 0;
         this.close()
       }, 1000)

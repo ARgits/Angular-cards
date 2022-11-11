@@ -6,7 +6,6 @@ import {VictoryDialogComponent} from "./victory-dialog/victory-dialog.component"
 import {MatDialog, MatDialogRef} from "@angular/material/dialog";
 import {Session} from "@supabase/supabase-js";
 import {TimerService} from "./timer.service";
-
 import {AnimationService} from "./animation.service";
 
 @Injectable({
@@ -25,7 +24,7 @@ export class GameService {
   session: Session | null = null
   state: string = 'paused'
   cardChanging: boolean = false
-  private readonly cardsDistribution: number[] = []
+  readonly cardsDistribution: number[] = []
 
   get user() {
     return this.session?.user
@@ -35,7 +34,7 @@ export class GameService {
               public dialog: MatDialog,
               private readonly timer: TimerService,
               private readonly animate: AnimationService) {
-    this.theme = 'default'
+    this.theme = 'webp'
     supabase.getSession().then(({data: {session}}) => this.session = session)
     this.cardsDistribution = ([] as number[]).concat(...Array(this.numberOfStack).fill(null).map((item, index) => Array(index + 1).fill(null).map(() => index + 1)))
   }
@@ -76,7 +75,7 @@ export class GameService {
       console.log(data)
       for (const card of this.cards) {
         card.srcCasing = await this.getCardSRC(card)
-        card.srcBack = <string>(await this.supabase.downLoadImage("default/Card_back.svg")).data.publicUrl
+        card.srcBack = <string>(await this.supabase.downLoadImage("webp/Card_back.webp")).data.publicUrl
       }
       this.sortCardsByStack()
 
@@ -87,33 +86,32 @@ export class GameService {
 
   restartGame() {
     if (!this.cards.length) {
-      this.startGame('default').then(() => console.log('Game has Started'))
+      this.startGame('webp').then(() => console.log('Game has Started'))
     }
     else {
-      const cards = this.cards.filter(c => c.stack !== 'hiddenStore')
-      this.animate.returnToHiddenStore(
-        cards,
-        (id) => {
-          const card = this.cards.find(c=>c.id===id)
-          if(!card) return
-          card.stack = 'hiddenStore';
-          card.shown = false
-        }, () => {
-          console.log('end of return to hidden store animation')
-          this.shuffle()
-          this.sortCardsByStack()
-        })
-      //this.createCards()
-
+      if (!this.animate.returnCardsAnimation) {
+        this.animate.returnCardsAnimation = this.animate.returnToHiddenStore(
+          () => {
+            this.cards.filter(c => c.stack !== 'hiddenStore').forEach(c => {
+              c.stack = 'hiddenStore';
+              c.shown = false
+            })
+            console.log('end of return to hidden store animation')
+            this.shuffle()
+            this.animate.returnCardsAnimation = null
+            this.sortCardsByStack()
+          })
+      }
+      this.animate.returnCardsAnimation.play().then(() => console.log(this.cards.map(c => {return {stack: c.stack, id: c.id, shown: c.shown}})))
     }
   }
 
   async getCardSRC(card: Card) {
     if (!this.cardsBucketData) {
-      return "default/Card_back.svg"
+      return "webp/Card_back.webp"
     }
     const dataCard = this.cardsBucketData.find(item => item.name.includes(card.casing) && item.name.includes(card.suit))
-    const src = dataCard ? `${this.theme}/${dataCard.name}` : "default/Card_back.svg"
+    const src = dataCard ? `${this.theme}/${dataCard.name}` : "webp/Card_back.webp"
     return <string>(await this.supabase.downLoadImage(src)).data.publicUrl
   }
 
@@ -147,31 +145,31 @@ export class GameService {
   }
 
   sortCardsByStack() {
-    this.animate.newGameAnimation(this.cardsDistribution,
-      (index) => {
-        //const card = this.cards.filter(c=>c.id===id)[0]
-        const card = this.cards[index]
-        //const index = this.cards.findIndex(c=>c.id===id)
+    const animation = this.animate.newGameAnimation(this.cardsDistribution,
+      (id) => {
+        /*const card = this.cards.filter(c => c.id === id)[0]
+        //const card = this.cards[index]
+        const index = this.cards.findIndex(c => c.id === id)
         const num = this.cardsDistribution[index]
-        card.shown = this.cardsDistribution[index + 1] !== num
+        card.shown = this.cardsDistribution[index + 1] !== num*/
       },
-      (index) => {
-        //const card = this.cards.filter(c=>c.id===id)[0]
-        //const index = this.cards.findIndex(c=>c.id===id)
-        const card = this.cards[index]
-        const num = this.cardsDistribution[index]
-        this.stacks.add(`bottom-${num}`)
-        card.stack = `bottom-${num}`
-      },
-      ()=>{
-      console.log('end of new GameAnimation')
+      () => {
+        console.log('end of new GameAnimation')
+        for (const [index, num] of this.cardsDistribution.entries()) {
+          const card = this.cards[index]
+          this.stacks.add(`bottom-${num}`)
+          card.stack = `bottom-${num}`
+          card.shown = this.cardsDistribution[index + 1] !== num
+        }
         this.state = 'active'
         this.timer.gameTime = 0
       }
     )
+    animation.restart().then(() => console.log(this.cards.map(c => {return {stack: c.stack, id: c.id, shown: c.shown}})))
   }
 
   shuffle() {
+    console.log('shuffle started')
     if (!this.cards.length) {
       return console.error('cards object not defined')
     }
@@ -184,6 +182,7 @@ export class GameService {
       newCards[i] = t
     }
     this.cards = [...newCards]
+    console.log('shuffle finished')
   }
 
   async getFromHiddenStore(card: Card) {
@@ -210,12 +209,7 @@ export class GameService {
     this.cards = [...this.cards, ...shownStore.reverse()]
   }
 
-  checkCorrectCardPosition(movingCard
-                             :
-                             Card, newStack
-                             :
-                             string
-  ) {
+  checkCorrectCardPosition(movingCard: Card, newStack: string) {
     const stackPriority = newStack.includes('final') ? -1 : 1
     const lastCard = this.cards.filter(c => c.stack === newStack).at(-1)
     if (lastCard) {
@@ -241,12 +235,7 @@ export class GameService {
   }
 
 // @ts-ignore
-  changeStack(cards
-                :
-                Card[], newStack
-                :
-                string
-  ) {
+  changeStack(cards: Card[], newStack: string) {
     if (this.cardChanging) {
       return console.error(`other card already changing`)
     }

@@ -6,8 +6,26 @@ import gsap from "gsap";
   providedIn: 'root'
 })
 export class AnimationService {
+  private _isActive: boolean
+  returnCardsAnimation: gsap.core.Timeline | null;
 
-  constructor() { }
+  constructor() {
+    this._isActive = false
+    this.returnCardsAnimation = null
+    gsap.ticker.lagSmoothing(1000, 16)
+  }
+
+  get isActive() {
+    return this._isActive
+  }
+
+  set isActive(tl: any) {
+    this._isActive = tl.isActive()
+  }
+
+  get hiddenStoreCoordinates() {
+    return document.getElementsByClassName('stack hiddenStore')[0].getBoundingClientRect()
+  }
 
   moveCard(card: Card, newStackID: string, onComplete = () => {}, duration: number = .25) {
     const cardElement = document.getElementById(card.id)
@@ -21,6 +39,7 @@ export class AnimationService {
     const {x, y} = stackElement.getBoundingClientRect()
     const offsetY = newStackID.includes('bottom') ? window.innerHeight * .01 * newCardIndex * 2 : 0
     const tl = gsap.timeline()
+    this.isActive = tl
     tl.set(cardElement, {css: {zIndex: 1}})
       .to(cardElement, {
         x: x - cardElementXandY.x,
@@ -30,92 +49,102 @@ export class AnimationService {
       })
   }
 
-  newGameAnimation(cardsDistribution: number[], onStartFunc = (index: number) => {}, onCompleteElemFunc = (index: number) => {},onCompleteFunc:gsap.Callback) {
+  newGameAnimation(cardsDistribution: number[], onStartFunc = (index: string) => {}, onCompleteFunc: gsap.Callback) {
     console.log('start of newGameAnimation')
     const numOfStartCards = cardsDistribution.length
-    const cardsElements = Array.from(document.querySelectorAll('img.hiddenStore')).slice(0, numOfStartCards)
-    const {x, y} = document.getElementsByClassName('stack hiddenStore')[0].getBoundingClientRect()
-    const tl = gsap.timeline({paused: true})
-    console.log(cardsElements)
-    for (const [index, elem] of cardsElements.entries()) {
-      const stackNumber = cardsDistribution[index]
-      const childTL = gsap.timeline()
-      tl.add(childTL.set(elem, {css: {zIndex: 1}})
-                    .to(elem, {
-                      x: () => {
-                        const stackCoordinates = document.getElementsByClassName(`stack bottom-${stackNumber}`)[0].getBoundingClientRect()
-                        return stackCoordinates.x - x
-                      },
-                      y: () => {
-                        const stackCoordinates = document.getElementsByClassName(`stack bottom-${stackNumber}`)[0].getBoundingClientRect()
-                        const offsetY = cardsDistribution.findIndex(value => value === stackNumber) - index
-                        return stackCoordinates.y - window.innerHeight * .01 * offsetY * 2 - y
-                      },
-                      duration: .5,
-                      onStart: () => onStartFunc(index),
-                      onComplete: () => {
-                        onCompleteElemFunc(index);
-                        elem.removeAttribute('style')
-                      }
-                    }), !index ? 0 : index * 0.2)
-    }
-    tl.eventCallback('onComplete',onCompleteFunc)
-    tl.delay(1).play()
+    const cardsElements = gsap.utils.toArray<HTMLElement>('img.hiddenStore').slice(0, numOfStartCards)
+    const masterTl = gsap.timeline({paused: true})
+
+    /*cardsElements.forEach((card, index) => {
+      let tl = gsap.timeline()
+                   .set(card, {css: {zIndex: 1}})
+                   .to(card, {
+                     x: () => {
+                       const {x} = card.getBoundingClientRect()
+                       const stackNumber = cardsDistribution[index]
+                       const stack = document.getElementsByClassName(`stack bottom-${stackNumber}`)
+                       const stackCoordinates = stack[0].getBoundingClientRect()
+                       return stackCoordinates.x - x
+                     },
+                     y: () => {
+                       const {y} = card.getBoundingClientRect()
+                       const stackNumber = cardsDistribution[index]
+                       const stack = document.getElementsByClassName(`stack bottom-${stackNumber}`)
+                       const stackCoordinates = stack[0].getBoundingClientRect()
+                       const offsetY = cardsDistribution.findIndex(value => value === stackNumber) - index
+                       return stackCoordinates.y - window.innerHeight * .01 * offsetY * 2 - y
+                     }, duration: 0.5
+                   })
+      masterTl.add(tl, index * 0.25)
+    })
+    masterTl.eventCallback('onComplete', () => {
+      onCompleteFunc();
+      masterTl.revert()
+    })*/
+    masterTl.set(cardsElements, {css: {zIndex: 1}})
+      .to(cardsElements, {
+        x: (index, elem) => {
+          const {x} = elem.getBoundingClientRect()
+          const stackNumber = cardsDistribution[index]
+          const stack = document.getElementsByClassName(`stack bottom-${stackNumber}`)
+          const stackCoordinates = stack[0].getBoundingClientRect()
+          console.log(stackCoordinates.x, x)
+          return stackCoordinates.x - x
+        },
+        y: (index, elem) => {
+          const {y} = elem.getBoundingClientRect()
+          const stackNumber = cardsDistribution[index]
+          const stack = document.getElementsByClassName(`stack bottom-${stackNumber}`)
+          const stackCoordinates = stack[0].getBoundingClientRect()
+          const offsetY = cardsDistribution.findIndex(value => value === stackNumber) - index
+          console.log(stackCoordinates.y, y, window.innerHeight * .01 * offsetY * 2)
+
+          return stackCoordinates.y - window.innerHeight * .01 * offsetY * 2 - y
+        },
+        stagger: {
+          each: 0.1,
+          /*onComplete: function () {
+            // @ts-ignore
+            const elem = this.targets()[0]
+            //onStartFunc(elem.id)
+          }*/
+        },
+        onComplete: function () {
+          onCompleteFunc()
+          // @ts-ignore
+          masterTl.revert()
+        }
+      })
+    return masterTl
   }
 
-  returnToHiddenStore(cards: Card[], onCompleteForElemFunc = (id: string) => {}, onCompleteFunc: gsap.Callback | null) {
-    console.log(cards)
+  returnToHiddenStore(onCompleteFunc: gsap.Callback | null) {
     console.log('start of return to hidden store animation')
     const masterTL = gsap.timeline({paused: true})
-    const {x, y} = document.getElementsByClassName('stack hiddenStore')[0].getBoundingClientRect()
-    for (const [index, card] of cards.reverse().entries()) {
-      const childTL = gsap.timeline()
-      const elem = document.getElementById(card.id)!
-      masterTL.add(childTL.set(elem, {css: {zIndex: 1}})
-                          .to(elem, {
-                            x: () => {
-                              const elementCoordinates = elem.getBoundingClientRect()
-                              return x - elementCoordinates.x
-                            },
-                            y: () => {
-                              const elementCoordinates = elem.getBoundingClientRect()
-                              return y - elementCoordinates.y
-                            },
-                            duration: .5,
-                            onComplete: () => {
-                              onCompleteForElemFunc(card.id);
-                              elem.removeAttribute('style')
-                            }
-                          }), !index ? 0 : index * 0.2)
-    }
-    masterTL.eventCallback('onComplete', onCompleteFunc)
-    masterTL.delay(1).play()
-  }
-
-//Метод был взят с форура GSAP, основное предназначение
-// иметь возможность применять индекс анимируемого элемента для функций onStart и onComplete
-  staggerTo(targets: any, vars: gsap.TweenVars) {
-    let tl = gsap.timeline();
-    targets = gsap.utils.toArray(targets);
-    if (typeof (vars.stagger) === "object") {
-      let staggerVars = Object.assign({}, vars.stagger),
-        each = staggerVars.amount ? staggerVars.amount / targets.length : staggerVars.each || 0,
-        wrap = (func: (arg0: any, arg1: any, arg2: string | object | null) => any, i: any, target: any) => () => func(i, target, targets),
-        types = "onComplete,onStart,onUpdate,onReverseComplete".split(","),
-        tweenVars = Object.assign({}, vars), callback;
-      staggerVars.each = staggerVars.amount = tweenVars.stagger = 0;
-      // @ts-ignore
-      "repeat,repeatDelay,yoyo,repeatRefresh,yoyoEase".split(",").forEach(n => staggerVars[n] && (tweenVars[n] = staggerVars[n]));
-      targets.forEach((target: gsap.TweenTarget, i: number) => {
-        let v = Object.assign({}, tweenVars);
-        // @ts-ignore
-        types.forEach(type => staggerVars[type] && (v[type] = wrap(staggerVars[type], i, target)));
-        tl.to(target, v, i * each);
-      });
-    }
-    else {
-      tl.to(targets, vars);
-    }
-    return tl;
+    this.isActive = masterTL
+    const {x, y} = this.hiddenStoreCoordinates
+    masterTL.set('img:not(.hiddenStore)', {css: {zIndex: 1}})
+            .to('img:not(.hiddenStore)', {
+              x: (_, elem) => {
+                const elementCoordinates = elem.getBoundingClientRect()
+                return x - elementCoordinates.x
+              },
+              y: (_, elem) => {
+                const elementCoordinates = elem.getBoundingClientRect()
+                return y - elementCoordinates.y
+              },
+              stagger: {
+                each: 0.1,
+              },
+              onComplete: function () {
+                // @ts-ignore
+                this.targets().forEach(elem => elem.removeAttribute('style'))
+                if (onCompleteFunc) {
+                  onCompleteFunc()
+                }
+              }
+            })
+    //masterTL.eventCallback('onComplete', onCompleteFunc)
+    return masterTL
   }
 }

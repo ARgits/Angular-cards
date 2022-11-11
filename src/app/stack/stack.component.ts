@@ -26,7 +26,6 @@ export class StackComponent implements OnInit {
 
   getClass() {
     let cls: string = 'stack'
-    cls += !this.stackArr.length ? " empty" : ""
     cls += ` ${this.stackId}`
     cls += ` length-${this.stackId.includes('bottom') ? this.stackArr.length : 0}`
     return cls
