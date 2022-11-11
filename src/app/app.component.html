@@ -6,14 +6,14 @@
       <span>
         Hello, {{user.email}}!
       </span>
-      <button mat-raised-button type="submit" (click)="signOut()" [disabled]="loading">
+      <button mat-raised-button type="submit" (click)="signOut()" [disabled]="isButtonDisabled()">
         {{loading ? "Signing out" : "SignOut"}}
       </button>
     </div>
     <ng-template #login>
-      <button mat-raised-button type="button" (click)="openDialog()">Login</button>
+      <button [disabled]="isButtonDisabled()" mat-raised-button type="button" (click)="openDialog()">Login</button>
     </ng-template>
-    <button mat-raised-button type="button" (click)="startNewGame()">Start New Game</button>
+    <button [disabled]="isButtonDisabled()" mat-raised-button type="button" (click)="startNewGame()">Start New Game</button>
     <!-- <button mat-raised-button type="button" (click)="giveCards()">Give Cards</button>-->
   </div>
   <div class="top">

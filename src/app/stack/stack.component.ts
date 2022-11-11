@@ -37,7 +37,7 @@ export class StackComponent implements OnInit {
 
   async click($event: MouseEvent) {
     $event.preventDefault()
-    if (this.stackId !== "hiddenStore") {
+    if (this.stackId !== "hiddenStore" || this.game.state === 'paused') {
       return
     }
     const lastCard = this.stackArr.at(-1)

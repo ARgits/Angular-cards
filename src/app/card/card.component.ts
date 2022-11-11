@@ -56,11 +56,11 @@ export class CardComponent implements OnInit {
 
   canDrag() {
     const stackArr = this.game.cards!.filter(c => c.stack === this.cardObject?.stack)
-    return (!this.cardObject?.shown && this.index !== stackArr.length - 1) || this.cardObject?.stack === 'hiddenStore'
+    return this.game.state !== 'paused' || (!this.cardObject?.shown && this.index !== stackArr.length - 1) || this.cardObject?.stack === 'hiddenStore'
   }
 
   async sendToFinalStack() {
-    if (!this.cardObject) {
+    if (!this.cardObject || this.game.state !== 'paused') {
       return
     }
     const {shown,} = this.cardObject

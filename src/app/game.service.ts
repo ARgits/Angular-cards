@@ -61,11 +61,13 @@ export class GameService {
   async startGame(theme: string) {
     try {
       console.log('creation cards')
+      console.log(this.state)
       this.createCards()
       if (!this.cards.length) {
         return
       }
       this.shuffle()
+      console.log(this.state)
       const cardsBucket = await this.supabase.cards
       const {data} = await cardsBucket.list(theme)
       if (!data) {
@@ -77,6 +79,7 @@ export class GameService {
         card.srcCasing = await this.getCardSRC(card)
         card.srcBack = <string>(await this.supabase.downLoadImage("webp/Card_back.webp")).data.publicUrl
       }
+      console.log(this.state)
       //this.sortCardsByStack()
 
     } catch ({message}) {
@@ -143,6 +146,7 @@ export class GameService {
   }
 
   sortCardsByStack() {
+    console.log(this.state)
     const animation = this.animate.newGameAnimation(this.cardsDistribution,
       (id) => {
         /*const card = this.cards.filter(c => c.id === id)[0]
@@ -159,6 +163,7 @@ export class GameService {
           card.stack = `bottom-${num}`
           card.shown = this.cardsDistribution[index + 1] !== num
         }
+        console.log(this.state)
         this.state = 'active'
         this.timer.gameTime = 0
       }
@@ -169,6 +174,7 @@ export class GameService {
 
   shuffle() {
     console.log('shuffle started')
+    console.log(this.state)
     if (!this.cards.length) {
       return console.error('cards object not defined')
     }
@@ -181,6 +187,7 @@ export class GameService {
       newCards[i] = t
     }
     this.cards = [...newCards]
+    console.log(this.state)
     console.log('shuffle finished')
   }
 

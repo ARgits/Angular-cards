@@ -130,6 +130,5 @@ export class AuthComponent implements OnInit {
 
   close() {
     this.dialogRef.close()
-    this.game.state = 'active'
   }
 }

@@ -108,6 +108,11 @@ export class AppComponent implements OnInit {
       this.loading = false
     }
   }
+
+  isButtonDisabled() {
+    return this.loading || this.game.state === 'paused'
+  }
+
   ngOnChanges(changes: SimpleChanges): void {
     console.log('app changes', changes)
   }
