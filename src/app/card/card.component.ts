@@ -54,7 +54,7 @@ export class CardComponent implements OnInit {
     $event.source.data = [...stackArr.slice(cardIndex)]
   }
 
-  canDrag() {
+  dragDisabled() {
     const stackArr = this.game.cards!.filter(c => c.stack === this.cardObject?.stack)
     return this.game.state === 'paused' || (!this.cardObject?.shown && this.index !== stackArr.length - 1) || this.cardObject?.stack === 'hiddenStore'
   }
