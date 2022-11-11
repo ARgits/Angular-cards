@@ -60,7 +60,7 @@ export class CardComponent implements OnInit {
   }
 
   async sendToFinalStack() {
-    if (!this.cardObject || this.game.state !== 'paused') {
+    if (!this.cardObject || this.game.state === 'paused') {
       return
     }
     const {shown,} = this.cardObject
