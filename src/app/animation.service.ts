@@ -52,9 +52,9 @@ export class AnimationService {
   newGameAnimation(cardsDistribution: number[], onStartFunc = (index: string) => {}, onCompleteFunc: gsap.Callback) {
     console.log('start of newGameAnimation')
     const numOfStartCards = cardsDistribution.length
-    const cardsElements = gsap.utils.toArray<HTMLElement>('img.hiddenStore').slice(0, numOfStartCards)
+    const cardsElements = gsap.utils.toArray<HTMLElement>('[class*="card-"]').slice(0, numOfStartCards)
     const masterTl = gsap.timeline({paused: true})
-
+    console.log(cardsElements, numOfStartCards)
     /*cardsElements.forEach((card, index) => {
       let tl = gsap.timeline()
                    .set(card, {css: {zIndex: 1}})
@@ -88,7 +88,6 @@ export class AnimationService {
           const stackNumber = cardsDistribution[index]
           const stack = document.getElementsByClassName(`stack bottom-${stackNumber}`)
           const stackCoordinates = stack[0].getBoundingClientRect()
-          console.log(stackCoordinates.x, x)
           return stackCoordinates.x - x
         },
         y: (index, elem) => {
@@ -97,8 +96,6 @@ export class AnimationService {
           const stack = document.getElementsByClassName(`stack bottom-${stackNumber}`)
           const stackCoordinates = stack[0].getBoundingClientRect()
           const offsetY = cardsDistribution.findIndex(value => value === stackNumber) - index
-          console.log(stackCoordinates.y, y, window.innerHeight * .01 * offsetY * 2)
-
           return stackCoordinates.y - window.innerHeight * .01 * offsetY * 2 - y
         },
         stagger: {
@@ -137,11 +134,10 @@ export class AnimationService {
                 each: 0.1,
               },
               onComplete: function () {
-                // @ts-ignore
-                this.targets().forEach(elem => elem.removeAttribute('style'))
                 if (onCompleteFunc) {
                   onCompleteFunc()
                 }
+                masterTL.revert()
               }
             })
     //masterTL.eventCallback('onComplete', onCompleteFunc)

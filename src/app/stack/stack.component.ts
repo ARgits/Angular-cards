@@ -1,6 +1,8 @@
 import {Component, Input, OnInit, SimpleChanges} from '@angular/core';
 import {GameService} from "../game.service";
 import {CdkDragDrop} from "@angular/cdk/drag-drop";
+import {AnimationService} from "../animation.service";
+import {TimerService} from "../timer.service";
 
 @Component({
   selector: 'app-stack',
@@ -11,7 +13,9 @@ export class StackComponent implements OnInit {
   @Input() stackId: string = ''
 
 
-  constructor(private readonly game: GameService) {
+  constructor(private readonly game: GameService,
+              private readonly animate: AnimationService,
+              private readonly timer: TimerService,) {
   }
 
   ngOnInit(): void {
@@ -61,9 +65,5 @@ export class StackComponent implements OnInit {
     if (check) {
       this.game.changeStack(cards, this.stackId)
     }
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    console.log('stack changes', changes)
   }
 }

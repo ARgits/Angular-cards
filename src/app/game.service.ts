@@ -77,7 +77,7 @@ export class GameService {
         card.srcCasing = await this.getCardSRC(card)
         card.srcBack = <string>(await this.supabase.downLoadImage("webp/Card_back.webp")).data.publicUrl
       }
-      this.sortCardsByStack()
+      //this.sortCardsByStack()
 
     } catch ({message}) {
       console.error('Error getting cards from Cards Game object:  ', message)
@@ -89,20 +89,18 @@ export class GameService {
       this.startGame('webp').then(() => console.log('Game has Started'))
     }
     else {
-      if (!this.animate.returnCardsAnimation) {
-        this.animate.returnCardsAnimation = this.animate.returnToHiddenStore(
-          () => {
-            this.cards.filter(c => c.stack !== 'hiddenStore').forEach(c => {
-              c.stack = 'hiddenStore';
-              c.shown = false
-            })
-            console.log('end of return to hidden store animation')
-            this.shuffle()
-            this.animate.returnCardsAnimation = null
-            this.sortCardsByStack()
+      this.state = 'paused'
+      const collectCardsAnimation = this.animate.returnToHiddenStore(
+        () => {
+          this.cards.forEach(c => {
+            c.stack = 'hiddenStore';
+            c.shown = false
           })
-      }
-      this.animate.returnCardsAnimation.play().then(() => console.log(this.cards.map(c => {return {stack: c.stack, id: c.id, shown: c.shown}})))
+          console.log('end of return to hidden store animation')
+          this.shuffle()
+          //this.sortCardsByStack()
+        })
+      collectCardsAnimation.play().then(() => console.log(this.cards.map(c => {return {stack: c.stack, id: c.id, shown: c.shown}})))
     }
   }
 
@@ -165,7 +163,8 @@ export class GameService {
         this.timer.gameTime = 0
       }
     )
-    animation.restart().then(() => console.log(this.cards.map(c => {return {stack: c.stack, id: c.id, shown: c.shown}})))
+    const delay = this.timer.gameTime ? 0.5 : 0
+    animation.delay(delay).restart(true)
   }
 
   shuffle() {

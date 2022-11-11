@@ -7,6 +7,8 @@ import {MatDialog, MatDialogRef} from "@angular/material/dialog";
 import {AuthComponent} from "./auth/auth.component";
 import {AnimationService} from "./animation.service";
 import {TimerService} from "./timer.service";
+import {from} from "rxjs";
+import {Card} from "./Card";
 
 @Component({
   selector: 'app-root',
@@ -37,8 +39,9 @@ export class AppComponent implements OnInit {
     private game: GameService,
     public dialog: MatDialog,
     private animate: AnimationService,
-    private timer:TimerService,
+    private timer: TimerService,
   ) {
+
   }
 
   ngOnInit() {
@@ -105,7 +108,6 @@ export class AppComponent implements OnInit {
       this.loading = false
     }
   }
-
   ngOnChanges(changes: SimpleChanges): void {
     console.log('app changes', changes)
   }

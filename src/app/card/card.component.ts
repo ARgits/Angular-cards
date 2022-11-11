@@ -1,4 +1,4 @@
-import {Component, Input, OnInit, ViewChild} from '@angular/core';
+import {Component, Input, OnInit, SimpleChanges, ViewChild} from '@angular/core';
 import {GameService} from "../game.service";
 import {Card} from "../Card";
 import {AnimationService} from "../animation.service";
@@ -72,10 +72,20 @@ export class CardComponent implements OnInit {
     if (!check) {
       return;
     }
-    this.animate.moveCard(this.cardObject, stackId,() => {
+    this.animate.moveCard(this.cardObject, stackId, () => {
       this.game.changeStack([this.cardObject!], stackId);
       this.game.finalSort()
     })
   }
 
+  ngAfterViewInit() {
+    if (this.index === this.game.cards.length - 1) {
+      console.log('card ready')
+      this.game.sortCardsByStack()
+    }
+  }
+
+  onOnChanges(simpleChange: SimpleChanges) {
+    console.log(simpleChange)
+  }
 }
