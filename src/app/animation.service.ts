@@ -29,26 +29,24 @@ export class AnimationService {
 
   flipCard(card: Card, onComplete: () => void) {
     const cardElement = document.getElementById(card.id)
-    console.log(cardElement)
     const selector = gsap.utils.selector(cardElement)
     const first = selector(`${card.shown ? '.front' : '.back'}`)
     const second = selector(`${card.shown ? '.back' : '.front'}`)
     const masterTL = gsap.timeline({paused: true})
     const direction = card.shown ? 1 : -1
-    console.log(direction)
     masterTL.set(cardElement, {
       transformStyle: 'preserve-3d',
       transformPerspective: 1000,
-      css:{zIndex:1000}
     })
             .set(second, {rotationY: -180 * direction, display:'block'})
-            .to(first, {duration: 0.5, rotationY: 180 * direction * -1},)
-            .to(second, {duration: 0.5, rotationY: 0,}, 0)
+            .to(first, {duration: 0.25, rotationY: 180 * direction * -1},)
+            .to(second, {duration: 0.25, rotationY: 0,}, 0)
             //.to(cardElement, {z: 1}, 0)
             //.to(cardElement, {z: 0}, )
             //.set(cardElement, {clearProps:'transformStyle, transformPerspective'})
     masterTL.eventCallback('onComplete', () => {
       onComplete();
+      masterTL.revert()
     })
     ///masterTL.eventCallback('onReverseComplete', onComplete)
     return masterTL
@@ -64,7 +62,8 @@ export class AnimationService {
     const offsetY = newStackID.includes('bottom') ? window.innerHeight * .01 * newCardIndex * 2 : 0
     const tl = gsap.timeline({paused: true})
     this.isActive = tl
-    tl.set(cardElement, {css:{zIndex:1000}})
+    console.log(document.querySelectorAll(`div.stack:not(#${card.stack})`),`div.stack:not(#${card.stack})`)
+    tl.set(`div.stack:not(#${card.stack})`, {css:{zIndex:-1}})
       .to(cardElement, {
         x: x - cardElementXandY.x,
         y: y + offsetY - cardElementXandY.y,
@@ -80,10 +79,10 @@ export class AnimationService {
   newGameAnimation(cardsDistribution: number[], onStartFunc = (index: string) => {}, onCompleteFunc: gsap.Callback) {
     console.log('start of newGameAnimation')
     const numOfStartCards = cardsDistribution.length
-    const cardsElements = gsap.utils.toArray<HTMLElement>('[class*="card-"]').slice(0, numOfStartCards)
+    const cardsElements = gsap.utils.toArray<HTMLElement>('div[class*="card-"]').slice(0, numOfStartCards)
     const masterTl = gsap.timeline({paused: true})
     console.log(cardsElements, numOfStartCards)
-    masterTl.set(cardsElements, {css: {zIndex: 1}})
+    masterTl.set('div.stack:not(#hiddenStore)', {css: {zIndex: -1}})
             .to(cardsElements, {
               x: (index, elem) => {
                 const {x} = elem.getBoundingClientRect()

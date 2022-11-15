@@ -189,7 +189,7 @@ export class GameService {
     })
     const flip = this.animate.flipCard(card, () => {
     })
-    flip.add(move.paused(false),">")
+    flip.add(move.paused(false), "<+=50%")
     flip.play()
   }
 
