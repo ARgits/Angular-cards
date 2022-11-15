@@ -139,7 +139,7 @@ export class GameService {
 
   sortCardsByStack() {
     const animation = this.animate.newGameAnimation(this.cardsDistribution,
-      (id) => {
+      () => {
         /*const card = this.cards.filter(c => c.id === id)[0]
         //const card = this.cards[index]
         const index = this.cards.findIndex(c => c.id === id)

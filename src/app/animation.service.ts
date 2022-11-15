@@ -76,7 +76,7 @@ export class AnimationService {
     return tl
   }
 
-  newGameAnimation(cardsDistribution: number[], onStartFunc = (index: string) => {}, onCompleteFunc: gsap.Callback) {
+  newGameAnimation(cardsDistribution: number[], onStartFunc = () => {}, onCompleteFunc: gsap.Callback) {
     console.log('start of newGameAnimation')
     const numOfStartCards = cardsDistribution.length
     const cardsElements = gsap.utils.toArray<HTMLElement>('div[class*="card-"]').slice(0, numOfStartCards)
@@ -114,7 +114,7 @@ export class AnimationService {
 
   returnToHiddenStore(onCompleteFunc: gsap.Callback | null) {
     console.log('start of return to hidden store animation')
-    const cards = this.shuffle(gsap.utils.toArray('img:not(.hiddenStore)'))
+    const cards = gsap.utils.toArray('img:not(.hiddenStore)').reverse()
     const masterTL = gsap.timeline({paused: true})
     this.isActive = masterTL
     const {x, y} = this.hiddenStoreCoordinates

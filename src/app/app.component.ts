@@ -5,10 +5,8 @@ import pkg from "../../package.json"
 import {Session} from "@supabase/supabase-js";
 import {MatDialog, MatDialogRef} from "@angular/material/dialog";
 import {AuthComponent} from "./auth/auth.component";
-import {AnimationService} from "./animation.service";
-import {TimerService} from "./timer.service";
-import {from} from "rxjs";
-import {Card} from "./Card";
+//import {AnimationService} from "./animation.service";
+//import {TimerService} from "./timer.service";
 
 @Component({
   selector: 'app-root',
@@ -38,8 +36,8 @@ export class AppComponent implements OnInit {
     private supabase: SupabaseService,
     private game: GameService,
     public dialog: MatDialog,
-    private animate: AnimationService,
-    private timer: TimerService,
+    //private animate: AnimationService,
+    //private timer: TimerService,
   ) {
 
   }
@@ -58,7 +56,7 @@ export class AppComponent implements OnInit {
     this.game.restartGame()
   }
 
-  giveCards() {
+  /*giveCards() {
     const animation = this.animate.newGameAnimation(this.game.cardsDistribution, (id) => {
         const card = this.game.cards.filter(c => c.id === id)[0]
         //const card = this.cards[index]
@@ -78,7 +76,7 @@ export class AppComponent implements OnInit {
         this.timer.gameTime = 0
       })
     animation.restart()
-  }
+  }*/
 
   openDialog() {
     this.game.state = 'paused'
