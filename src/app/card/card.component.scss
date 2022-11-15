@@ -3,7 +3,9 @@
     top: calc(var(--vertical-margin) * 2 * $i);
   }
 }
-
+div[class*='card-']{
+  z-index: 0;
+}
 img {
   position: absolute;
   -webkit-user-drag: none;
@@ -17,7 +19,7 @@ img {
   }
 
   &.hidden.back {
-    opacity:0;
+    display: none;
   }
 }
 

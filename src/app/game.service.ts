@@ -181,17 +181,16 @@ export class GameService {
     if (!index) {
       return
     }
-    const move = this.animate.moveCard(card, 'shownStore', () => { })
-    const flip = this.animate.flipCard(card, () => { })
-    move.add(flip, "<")
-    move.eventCallback('onComplete', () => {
+    const move = this.animate.moveCard(card, 'shownStore', () => {
       card.shown = true
       this.cards.splice(index, 1)
       card.stack = 'shownStore'
       this.cards.push(card)
     })
-    move.play()
-
+    const flip = this.animate.flipCard(card, () => {
+    })
+    flip.add(move.paused(false),">")
+    flip.play()
   }
 
   async refreshHiddenStore() {

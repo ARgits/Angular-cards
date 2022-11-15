@@ -39,23 +39,24 @@ export class AnimationService {
     masterTL.set(cardElement, {
       transformStyle: 'preserve-3d',
       transformPerspective: 1000,
+      css:{zIndex:1000}
     })
-            .set(second, {rotationY: -180 * direction, opacity: 1})
+            .set(second, {rotationY: -180 * direction, display:'block'})
             .to(first, {duration: 0.5, rotationY: 180 * direction * -1},)
             .to(second, {duration: 0.5, rotationY: 0,}, 0)
-            .to(cardElement, {z: 50}, 0)
-            .to(cardElement, {z: 0}, 0.25)
+            //.to(cardElement, {z: 1}, 0)
+            //.to(cardElement, {z: 0}, )
+            //.set(cardElement, {clearProps:'transformStyle, transformPerspective'})
     masterTL.eventCallback('onComplete', () => {
       onComplete();
-      masterTL.revert()
     })
     ///masterTL.eventCallback('onReverseComplete', onComplete)
     return masterTL
   }
 
   moveCard(card: Card, newStackID: string, onComplete = () => {}, duration: number = .25) {
-    const cardElement = document.getElementById(card.id)
-    console.log('start moving')
+    const cardElement = document.querySelector(`#${card.id}`)
+    console.log('start moving', cardElement)
     const cardElementXandY = cardElement!.getBoundingClientRect()
     const stackElement = document.getElementsByClassName(newStackID)[0]
     const newCardIndex = 1
@@ -63,7 +64,7 @@ export class AnimationService {
     const offsetY = newStackID.includes('bottom') ? window.innerHeight * .01 * newCardIndex * 2 : 0
     const tl = gsap.timeline({paused: true})
     this.isActive = tl
-    tl.set(cardElement, {css: {zIndex: 1}})
+    tl.set(cardElement, {css:{zIndex:1000}})
       .to(cardElement, {
         x: x - cardElementXandY.x,
         y: y + offsetY - cardElementXandY.y,
