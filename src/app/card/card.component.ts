@@ -1,7 +1,8 @@
-import {Component, Input, OnInit, SimpleChanges, ViewChild} from '@angular/core';
+import {Component, ElementRef, Input, OnInit, SimpleChanges, ViewChild} from '@angular/core';
 import {GameService} from "../game.service";
 import {Card} from "../Card";
 import {AnimationService} from "../animation.service";
+import gsap from "gsap";
 
 @Component({
   selector: 'app-card',
@@ -12,16 +13,24 @@ export class CardComponent implements OnInit {
   @ViewChild('card') cardElement: any
   @Input() cardObject: Card | null = null
   @Input() index: number = 0
+  private selector: gsap.utils.SelectorFunc;
+  private timeline: gsap.core.Timeline;
 
 
   constructor(private readonly game: GameService,
-              private readonly animate: AnimationService,) {
+              private readonly animate: AnimationService,
+              private element: ElementRef) {
+    this.selector = gsap.utils.selector(element)
+    this.timeline = gsap.timeline({paused: true})
   }
 
+  ngOnInit(): void {
+  }
 
-  getClass() {
+  getClass(type: string = '') {
     let cls = `card-${this.index}`
     cls += ` ${this.cardObject?.stack}`
+    cls += `${this.cardObject?.shown ? ' hidden' : ' '} ` + type
     return cls
   }
 
@@ -36,7 +45,26 @@ export class CardComponent implements OnInit {
     return this.game.cards.filter(card => card.stack === this.cardObject?.stack)[this.index + 1]
   }
 
-  ngOnInit(): void { }
+  flipOnClick() {
+    if (!this.cardObject) {
+      return
+    }
+
+    this.timeline = this.animate.flipCard(this.cardObject, () => {
+      const {shown} = this.cardObject!;
+      const card = this.game.cards.find(c => c.id === this.cardObject!.id)
+      if (!card) {
+        return
+      }
+      console.log(card.id, card.shown, shown)
+      card.shown = !shown
+
+    })
+    this.timeline.restart()
+
+
+  }
+
 
   onDragStart({$event}: {$event: any}) {
 
@@ -72,20 +100,61 @@ export class CardComponent implements OnInit {
     if (!check) {
       return;
     }
-    this.animate.moveCard(this.cardObject, stackId, () => {
+    const move = this.animate.moveCard(this.cardObject, stackId, () => {
       this.game.changeStack([this.cardObject!], stackId);
       this.game.finalSort()
     })
+    move.play()
   }
 
   ngAfterViewInit() {
+    /* const card = this.cardElement.nativeElement
+     const selector = gsap.utils.selector(card)
+     const first = selector(`${this.cardObject!.shown ? '.front' : '.back'}`)
+     const second = selector(`${this.cardObject!.shown ? '.back' : '.front'}`)
+     gsap.set(card, {
+       transformStyle: 'preserve-3d',
+       transformPerspective: 1000,
+     })
+     gsap.set(second, {rotationY: -180,})
+     this.timeline.to(first, {duration: 1, rotationY: 180})
+         .to(second, {duration: 1, rotationY: 0}, 0)
+         .to(card, {z: 50}, 0)
+         .to(card, {z: 0}, 0.5)
+     const complete = () => {
+       const {shown} = this.cardObject!;
+       const card = this.game.cards.find(c => c.id === this.cardObject!.id)
+       if (!card) {
+         return
+       }
+       console.log(card.id, card.shown, shown)
+       card.shown = !shown
+       const front = selector('.front')[0]
+       console.log(front)
+       front.removeAttribute('style')
+     }
+     this.timeline.eventCallback('onComplete', complete)
+     this.timeline.eventCallback('onReverseComplete', complete)
+     //this.timeline = this.animate.flipCard(this.cardObject!, complete)*/
+    /*this.timeline = this.animate.flipCard(this.cardObject!, () => {
+      const {shown} = this.cardObject!;
+      const card = this.game.cards.find(c => c.id === this.cardObject!.id)
+      if (!card) {
+        return
+      }
+      console.log(card.id, card.shown, shown)
+      card.shown = !shown
+      this.timeline.revert()
+    })*/
     if (this.index === this.game.cards.length - 1) {
       console.log('card ready')
       this.game.sortCardsByStack()
     }
   }
 
-  onOnChanges(simpleChange: SimpleChanges) {
-    console.log(simpleChange)
+  ngAfterViewChecked() {
+  }
+
+  ngOnChanges(simpleChange: SimpleChanges) {
   }
 }

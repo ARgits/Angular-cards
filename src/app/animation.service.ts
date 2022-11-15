@@ -27,26 +27,53 @@ export class AnimationService {
     return document.getElementsByClassName('stack hiddenStore')[0].getBoundingClientRect()
   }
 
+  flipCard(card: Card, onComplete: () => void) {
+    const cardElement = document.getElementById(card.id)
+    console.log(cardElement)
+    const selector = gsap.utils.selector(cardElement)
+    const first = selector(`${card.shown ? '.front' : '.back'}`)
+    const second = selector(`${card.shown ? '.back' : '.front'}`)
+    const masterTL = gsap.timeline({paused: true})
+    const direction = card.shown ? 1 : -1
+    console.log(direction)
+    masterTL.set(cardElement, {
+      transformStyle: 'preserve-3d',
+      transformPerspective: 1000,
+    })
+            .set(second, {rotationY: -180 * direction, opacity: 1})
+            .to(first, {duration: 0.5, rotationY: 180 * direction * -1},)
+            .to(second, {duration: 0.5, rotationY: 0,}, 0)
+            .to(cardElement, {z: 50}, 0)
+            .to(cardElement, {z: 0}, 0.25)
+    masterTL.eventCallback('onComplete', () => {
+      onComplete();
+      masterTL.revert()
+    })
+    ///masterTL.eventCallback('onReverseComplete', onComplete)
+    return masterTL
+  }
+
   moveCard(card: Card, newStackID: string, onComplete = () => {}, duration: number = .25) {
     const cardElement = document.getElementById(card.id)
-    if (!cardElement) {
-      return console.error('Card was not found: ', card)
-    }
     console.log('start moving')
-    const cardElementXandY = cardElement.getBoundingClientRect()
+    const cardElementXandY = cardElement!.getBoundingClientRect()
     const stackElement = document.getElementsByClassName(newStackID)[0]
     const newCardIndex = 1
     const {x, y} = stackElement.getBoundingClientRect()
     const offsetY = newStackID.includes('bottom') ? window.innerHeight * .01 * newCardIndex * 2 : 0
-    const tl = gsap.timeline()
+    const tl = gsap.timeline({paused: true})
     this.isActive = tl
     tl.set(cardElement, {css: {zIndex: 1}})
       .to(cardElement, {
         x: x - cardElementXandY.x,
         y: y + offsetY - cardElementXandY.y,
-        onComplete,
+        onComplete: function () {
+          onComplete();
+          tl.revert()
+        },
         duration,
       })
+    return tl
   }
 
   newGameAnimation(cardsDistribution: number[], onStartFunc = (index: string) => {}, onCompleteFunc: gsap.Callback) {
@@ -55,73 +82,44 @@ export class AnimationService {
     const cardsElements = gsap.utils.toArray<HTMLElement>('[class*="card-"]').slice(0, numOfStartCards)
     const masterTl = gsap.timeline({paused: true})
     console.log(cardsElements, numOfStartCards)
-    /*cardsElements.forEach((card, index) => {
-      let tl = gsap.timeline()
-                   .set(card, {css: {zIndex: 1}})
-                   .to(card, {
-                     x: () => {
-                       const {x} = card.getBoundingClientRect()
-                       const stackNumber = cardsDistribution[index]
-                       const stack = document.getElementsByClassName(`stack bottom-${stackNumber}`)
-                       const stackCoordinates = stack[0].getBoundingClientRect()
-                       return stackCoordinates.x - x
-                     },
-                     y: () => {
-                       const {y} = card.getBoundingClientRect()
-                       const stackNumber = cardsDistribution[index]
-                       const stack = document.getElementsByClassName(`stack bottom-${stackNumber}`)
-                       const stackCoordinates = stack[0].getBoundingClientRect()
-                       const offsetY = cardsDistribution.findIndex(value => value === stackNumber) - index
-                       return stackCoordinates.y - window.innerHeight * .01 * offsetY * 2 - y
-                     }, duration: 0.5
-                   })
-      masterTl.add(tl, index * 0.25)
-    })
-    masterTl.eventCallback('onComplete', () => {
-      onCompleteFunc();
-      masterTl.revert()
-    })*/
     masterTl.set(cardsElements, {css: {zIndex: 1}})
-      .to(cardsElements, {
-        x: (index, elem) => {
-          const {x} = elem.getBoundingClientRect()
-          const stackNumber = cardsDistribution[index]
-          const stack = document.getElementsByClassName(`stack bottom-${stackNumber}`)
-          const stackCoordinates = stack[0].getBoundingClientRect()
-          return stackCoordinates.x - x
-        },
-        y: (index, elem) => {
-          const {y} = elem.getBoundingClientRect()
-          const stackNumber = cardsDistribution[index]
-          const stack = document.getElementsByClassName(`stack bottom-${stackNumber}`)
-          const stackCoordinates = stack[0].getBoundingClientRect()
-          const offsetY = cardsDistribution.findIndex(value => value === stackNumber) - index
-          return stackCoordinates.y - window.innerHeight * .01 * offsetY * 2 - y
-        },
-        stagger: {
-          each: 0.1,
-          /*onComplete: function () {
-            // @ts-ignore
-            const elem = this.targets()[0]
-            //onStartFunc(elem.id)
-          }*/
-        },
-        onComplete: function () {
-          onCompleteFunc()
-          // @ts-ignore
-          masterTl.revert()
-        }
-      })
+            .to(cardsElements, {
+              x: (index, elem) => {
+                const {x} = elem.getBoundingClientRect()
+                const stackNumber = cardsDistribution[index]
+                const stack = document.getElementsByClassName(`stack bottom-${stackNumber}`)
+                const stackCoordinates = stack[0].getBoundingClientRect()
+                return stackCoordinates.x - x
+              },
+              y: (index, elem) => {
+                const {y} = elem.getBoundingClientRect()
+                const stackNumber = cardsDistribution[index]
+                const stack = document.getElementsByClassName(`stack bottom-${stackNumber}`)
+                const stackCoordinates = stack[0].getBoundingClientRect()
+                const offsetY = cardsDistribution.findIndex(value => value === stackNumber) - index
+                return stackCoordinates.y - window.innerHeight * .01 * offsetY * 2 - y
+              },
+              stagger: {
+                each: 0.05,
+              },
+              duration: 0.25,
+              onComplete: function () {
+                onCompleteFunc()
+                // @ts-ignore
+                masterTl.revert()
+              }
+            })
     return masterTl
   }
 
   returnToHiddenStore(onCompleteFunc: gsap.Callback | null) {
     console.log('start of return to hidden store animation')
+    const cards = this.shuffle(gsap.utils.toArray('img:not(.hiddenStore)'))
     const masterTL = gsap.timeline({paused: true})
     this.isActive = masterTL
     const {x, y} = this.hiddenStoreCoordinates
-    masterTL.set('img:not(.hiddenStore)', {css: {zIndex: 1}})
-            .to('img:not(.hiddenStore)', {
+    masterTL.set(cards, {css: {zIndex: 1},})
+            .to(cards, {
               x: (_, elem) => {
                 const elementCoordinates = elem.getBoundingClientRect()
                 return x - elementCoordinates.x
@@ -131,8 +129,14 @@ export class AnimationService {
                 return y - elementCoordinates.y
               },
               stagger: {
-                each: 0.1,
+                each: 0.05,
+                onComplete: function () {
+                  //@ts-ignore
+                  const target = this.targets()[0]
+                  gsap.set(target, {css: {zIndex: 0}})
+                }
               },
+              duration: 0.25,
               onComplete: function () {
                 if (onCompleteFunc) {
                   onCompleteFunc()
@@ -140,7 +144,18 @@ export class AnimationService {
                 masterTL.revert()
               }
             })
-    //masterTL.eventCallback('onComplete', onCompleteFunc)
     return masterTL
+  }
+
+  shuffle(array: any[]) {
+    const newArray = [...array]
+    let m = newArray.length, t, i
+    while (m) {
+      i = Math.floor(Math.random() * m--)
+      t = newArray[m]
+      newArray[m] = newArray[i]
+      newArray[i] = t
+    }
+    return [...newArray]
   }
 }
