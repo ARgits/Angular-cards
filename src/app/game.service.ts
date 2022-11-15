@@ -315,6 +315,7 @@ export class GameService {
     this.dialogRef = this.dialog.open(VictoryDialogComponent, {
       id: 'victoryDialog',
       width: 'fit-content',
+      disableClose:true,
     })
     this.dialogRef.afterClosed().subscribe(() => {
       this.dialogRef = null
