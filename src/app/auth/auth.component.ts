@@ -119,7 +119,6 @@ export class AuthComponent implements OnInit {
         this.progress = 0;
         this.close()
       }, 1000)
-      this.downloadStarts = false
     }
   }
 

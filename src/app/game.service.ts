@@ -24,6 +24,7 @@ export class GameService {
   session: Session | null = null
   state: string = 'paused'
   cardChanging: boolean = false
+  loaded:boolean = false
   readonly cardsDistribution: number[] = []
 
   get user() {
@@ -70,7 +71,6 @@ export class GameService {
         return
       }
       this.cardsBucketData = data
-
       for (const card of this.cards) {
         card.srcCasing = await this.getCardSRC(card)
         card.srcBack = <string>(await this.supabase.downLoadImage("webp/Card_back.webp")).data.publicUrl
@@ -94,8 +94,9 @@ export class GameService {
             c.shown = false
           })
           this.shuffle()
+          collectCardsAnimation.revert()
         })
-      collectCardsAnimation.play().then(() => console.log(this.cards.map(c => {return {stack: c.stack, id: c.id, shown: c.shown}})))
+      collectCardsAnimation.play()
     }
   }
 
@@ -138,27 +139,56 @@ export class GameService {
   }
 
   sortCardsByStack() {
-    const animation = this.animate.newGameAnimation(this.cardsDistribution,
-      () => {
-        /*const card = this.cards.filter(c => c.id === id)[0]
-        //const card = this.cards[index]
-        const index = this.cards.findIndex(c => c.id === id)
-        const num = this.cardsDistribution[index]
-        card.shown = this.cardsDistribution[index + 1] !== num*/
-      },
-      () => {
-        for (const [index, num] of this.cardsDistribution.entries()) {
-          const card = this.cards[index]
-          this.stacks.add(`bottom-${num}`)
-          card.stack = `bottom-${num}`
-          card.shown = this.cardsDistribution[index + 1] !== num
-        }
-        this.state = 'active'
-        this.timer.gameTime = 0
-      }
-    )
-    const delay = this.timer.gameTime ? 0.5 : 0
-    animation.delay(delay).restart(true)
+    const cards = this.cardsDistribution.map((num, index, arr) => {
+      console.log(num,index)
+      const card = this.cards.at(-(index+1))!
+      const stack = `bottom-${num}`
+      const shown = num !== arr[index + 1]
+      return {...card, stack, shown}
+    })
+    const animation = this.animate.newGameAnimation(cards)
+    animation.eventCallback('onComplete', () => {
+      cards.forEach((c, index) => {
+        const card = this.cards.at(-(index+1))!
+        card.shown = c.shown
+        card.stack = c.stack
+        this.stacks.add(c.stack)
+      })
+      this.cards.reverse()
+      this.state = 'active'
+      this.timer.gameTime = 0
+      animation.revert()
+    })
+    // const animation = this.animate.newGameAnimation(this.cardsDistribution, () => { }, () => {
+    // })
+    // const numbers = [...new Set(this.cardsDistribution)]
+    // const cards = this.cardsDistribution.map((num, index, arr) => {
+    //   const card = this.cards[index]
+    //   const stack = `bottom-${num}`
+    //   const shown = num !== arr[index + 1]
+    //   return {...card, stack, shown}
+    // })
+    // numbers.forEach((_, index, arr) => {
+    //   const card = cards.filter(c => c.shown)[index]
+    //   if (index !== arr.length - 1) {
+    //     const flip = this.animate.flipCard(card, () => {})
+    //     animation.add(flip.paused(false),">")
+    //   }
+    //   else {
+    //     const flip = this.animate.flipCard(card, () => {
+    //       numbers.forEach(num => this.stacks.add(`bottom-${num}`))
+    //       this.cards.slice(0, this.cardsDistribution.length).forEach((card, index) => {
+    //         this.cards[index] = cards[index]
+    //       })
+    //       this.state = 'active'
+    //       this.timer.gameTime = 0
+    //     })
+    //     console.log(flip)
+    //     animation.add(flip.paused(false),">")
+    //   }
+    // })
+    //const delay = this.timer.gameTime ? 0.5 : 0
+    animation.play()
   }
 
   shuffle() {
@@ -181,14 +211,15 @@ export class GameService {
     if (!index) {
       return
     }
-    const move = this.animate.moveCard(card, 'shownStore', () => {
+    const move = this.animate.moveCard(card, 'shownStore')
+    move.eventCallback('onComplete', () => {
       card.shown = true
       this.cards.splice(index, 1)
       card.stack = 'shownStore'
       this.cards.push(card)
+      move.revert()
     })
-    const flip = this.animate.flipCard(card, () => {
-    })
+    const flip = this.animate.flipCard(card)
     flip.add(move.paused(false), "<+=50%")
     flip.play()
   }
@@ -253,9 +284,12 @@ export class GameService {
       const previousStackNewLastCardIndex = this.cards.findIndex(c => c.id === previousStackNewLastCard.id)
       this.cards.splice(previousStackNewLastCardIndex, 1)
       if (!previousStackNewLastCard.shown) {
-        this.animate.flipCard(previousStackNewLastCard, () => {
+        const flip = this.animate.flipCard(previousStackNewLastCard,)
+        flip.eventCallback('onComplete', () => {
           previousStackNewLastCard.shown = true
-        }).play()
+          flip.revert()
+        })
+        flip.play()
       }
     }
     const newCards = <Card[]>[...cards, previousStackNewLastCard].filter(c => c).sort((a, b) => (priority * (b!.priority - a!.priority)))
@@ -278,10 +312,12 @@ export class GameService {
     const finalStack = this.getFinalStackForCard(lastCard)
     const check = this.checkCorrectCardPosition(lastCard, finalStack)
     if (check) {
-      const move = this.animate.moveCard(lastCard, finalStack, () => {
+      const move = this.animate.moveCard(lastCard, finalStack,);
+      move.eventCallback('onComplete', () => {
         this.changeStack([lastCard], finalStack);
         this.finalSort()
-      });
+        move.revert()
+      })
       move.play()
     }
     else {
@@ -291,10 +327,7 @@ export class GameService {
     console.log('final sort excluded stacks: ', excludeStack)
   }
 
-  getFinalStackForCard(card
-                         :
-                         Card
-  ) {
+  getFinalStackForCard(card: Card) {
     const {suit} = card
     let stackId = this.cards.filter(c => c.suit === suit && c.stack.includes('final'))[0]?.stack
     if (!stackId) {
@@ -315,7 +348,7 @@ export class GameService {
     this.dialogRef = this.dialog.open(VictoryDialogComponent, {
       id: 'victoryDialog',
       width: 'fit-content',
-      disableClose:true,
+      disableClose: true,
     })
     this.dialogRef.afterClosed().subscribe(() => {
       this.dialogRef = null

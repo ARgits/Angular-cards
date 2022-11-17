@@ -1,4 +1,4 @@
-import {Component, EventEmitter, OnInit, Output, SimpleChanges} from '@angular/core';
+import {Component, EventEmitter, OnInit, Output,} from '@angular/core';
 import {SupabaseService} from "./supabase.service";
 import {GameService} from "./game.service";
 import pkg from "../../package.json"
@@ -109,10 +109,6 @@ export class AppComponent implements OnInit {
 
   isButtonDisabled() {
     return this.loading || this.game.state === 'paused'
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    console.log('app changes', changes)
   }
 
 }

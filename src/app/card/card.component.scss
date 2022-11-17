@@ -1,23 +1,24 @@
 @for $i from 0 through 54 {
   .card-#{$i} {
     top: calc(var(--vertical-margin) * 2 * $i);
+    &.hiddenStore, &.shownStore, &[class*='final-']{
+      left:calc(var(--horizontal-margin)*$i/75)
+    }
   }
 }
 div[class*='card-']{
-  z-index: 0;
+  position: absolute;
+  &:not([class*='bottom-']) {
+    top: 0;
+  }
 }
 img {
-  position: absolute;
+  position:absolute;
   -webkit-user-drag: none;
   user-select: none;
   width: var(--card-width);
   height: var(--card-height);
   backface-visibility: hidden;
-
-  &:not(img[class*='bottom-']) {
-    top: 0;
-  }
-
   &.hidden.back {
     display: none;
   }

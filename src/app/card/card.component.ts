@@ -1,4 +1,4 @@
-import {Component, ElementRef, Input, OnInit, SimpleChanges, ViewChild} from '@angular/core';
+import {Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
 import {GameService} from "../game.service";
 import {Card} from "../Card";
 import {AnimationService} from "../animation.service";
@@ -15,6 +15,7 @@ export class CardComponent implements OnInit {
   @Input() index: number = 0
   private selector: gsap.utils.SelectorFunc;
   private timeline: gsap.core.Timeline;
+  loaded: boolean = false
 
 
   constructor(private readonly game: GameService,
@@ -25,12 +26,15 @@ export class CardComponent implements OnInit {
   }
 
   ngOnInit(): void {
-  }
 
-  getClass(type: string = '') {
+  }
+  getImgClass(type:string){
+    return `${this.cardObject?.shown ? ' hidden' : ' '} ` + type
+  }
+  getDivClass() {
     let cls = `card-${this.index}`
     cls += ` ${this.cardObject?.stack}`
-    cls += `${this.cardObject?.shown ? ' hidden' : ' '} ` + type
+    cls += `${this.game.loaded ? '' : ' notLoaded'}`
     return cls
   }
 
@@ -50,7 +54,8 @@ export class CardComponent implements OnInit {
       return
     }
 
-    this.timeline = this.animate.flipCard(this.cardObject, () => {
+    this.timeline = this.animate.flipCard(this.cardObject,)
+    this.timeline.eventCallback('onComplete', () => {
       const {shown} = this.cardObject!;
       const card = this.game.cards.find(c => c.id === this.cardObject!.id)
       if (!card) {
@@ -100,61 +105,27 @@ export class CardComponent implements OnInit {
     if (!check) {
       return;
     }
-    const move = this.animate.moveCard(this.cardObject, stackId, () => {
+    const move = this.animate.moveCard(this.cardObject, stackId,)
+    move.eventCallback('onComplete', () => {
       this.game.changeStack([this.cardObject!], stackId);
       this.game.finalSort()
+      move.revert()
     })
     move.play()
   }
 
-  ngAfterViewInit() {
-    /* const card = this.cardElement.nativeElement
-     const selector = gsap.utils.selector(card)
-     const first = selector(`${this.cardObject!.shown ? '.front' : '.back'}`)
-     const second = selector(`${this.cardObject!.shown ? '.back' : '.front'}`)
-     gsap.set(card, {
-       transformStyle: 'preserve-3d',
-       transformPerspective: 1000,
-     })
-     gsap.set(second, {rotationY: -180,})
-     this.timeline.to(first, {duration: 1, rotationY: 180})
-         .to(second, {duration: 1, rotationY: 0}, 0)
-         .to(card, {z: 50}, 0)
-         .to(card, {z: 0}, 0.5)
-     const complete = () => {
-       const {shown} = this.cardObject!;
-       const card = this.game.cards.find(c => c.id === this.cardObject!.id)
-       if (!card) {
-         return
-       }
-       console.log(card.id, card.shown, shown)
-       card.shown = !shown
-       const front = selector('.front')[0]
-       console.log(front)
-       front.removeAttribute('style')
-     }
-     this.timeline.eventCallback('onComplete', complete)
-     this.timeline.eventCallback('onReverseComplete', complete)
-     //this.timeline = this.animate.flipCard(this.cardObject!, complete)*/
-    /*this.timeline = this.animate.flipCard(this.cardObject!, () => {
-      const {shown} = this.cardObject!;
-      const card = this.game.cards.find(c => c.id === this.cardObject!.id)
-      if (!card) {
-        return
-      }
-      console.log(card.id, card.shown, shown)
-      card.shown = !shown
-      this.timeline.revert()
-    })*/
+  onCardLoad() {
     if (this.index === this.game.cards.length - 1) {
-      console.log('card ready')
+      this.game.loaded = true
       this.game.sortCardsByStack()
     }
   }
 
-  ngAfterViewChecked() {
-  }
-
-  ngOnChanges(simpleChange: SimpleChanges) {
+  ngAfterViewInit() {
+    // if (this.index === this.game.cards.length - 1) {
+    //       console.log('card ready')
+    //       this.game.sortCardsByStack()
+    //     }
+    // }
   }
 }
