@@ -2,8 +2,16 @@
   min-width: var(--card-width);
   min-height: var(--card-height);
   position: relative;
+
   &.final-1 {
     margin-left: calc(var(--horizontal-margin) * 1 + var(--card-width));
+  }
+
+}
+
+@for $i from 1 through 51 {
+  div.length-#{$i}[class*='bottom-'] {
+    height: calc(var(--card-height) + var(--vertical-margin) * ($i - 1)*2)
   }
 }
 
