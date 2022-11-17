@@ -1,4 +1,4 @@
-@for $i from 0 through 54 {
+@for $i from 0 through 51 {
   .card-#{$i} {
     top: calc(var(--vertical-margin) * 2 * $i);
     &.hiddenStore, &.shownStore, &[class*='final-']{
