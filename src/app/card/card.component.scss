@@ -1,7 +1,6 @@
 @for $i from 0 through 51 {
   .card-#{$i} {
-    top: calc(var(--vertical-margin) * 2 * $i);
-
+    top: calc(var(--card-vertical-offset) * 2 * $i);
     &:not([class*='bottom-']) {
       left: calc(var(--horizontal-margin) * $i / 75)
     }

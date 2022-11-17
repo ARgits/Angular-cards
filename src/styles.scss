@@ -3,15 +3,25 @@ body {
   margin: 1vh;
   font-family: Roboto, "Helvetica Neue", sans-serif;
 }
-#loginDialog{
+
+#loginDialog {
   padding: 2.5vh 2.5vw;
 }
-#victoryDialog{
+
+#victoryDialog {
   aspect-ratio: 1/1;
 }
+
 :root {
   --card-height: 20vmin;
   --card-width: calc(20vmin / 1.5);
-  --horizontal-margin:1vw;
-  --vertical-margin:1vh
+  --horizontal-margin: 1vw;
+  --vertical-margin: 1vh;
+  --card-vertical-offset: 1vh
+}
+
+@media (min-aspect-ratio: 16/9) {
+  :root {
+    --card-vertical-offset: 4vh
+  }
 }
