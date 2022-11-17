@@ -5,8 +5,6 @@ import pkg from "../../package.json"
 import {Session} from "@supabase/supabase-js";
 import {MatDialog, MatDialogRef} from "@angular/material/dialog";
 import {AuthComponent} from "./auth/auth.component";
-//import {AnimationService} from "./animation.service";
-//import {TimerService} from "./timer.service";
 
 @Component({
   selector: 'app-root',
@@ -36,8 +34,6 @@ export class AppComponent implements OnInit {
     private supabase: SupabaseService,
     private game: GameService,
     public dialog: MatDialog,
-    //private animate: AnimationService,
-    //private timer: TimerService,
   ) {
 
   }
@@ -45,9 +41,6 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     this.supabase.authChanges((changeEvent, session) => {
       this.session = session;
-      if (this.session) {
-        console.log(this.user)
-      }
     })
     this.openDialog()
   }
@@ -55,28 +48,6 @@ export class AppComponent implements OnInit {
   startNewGame() {
     this.game.restartGame()
   }
-
-  /*giveCards() {
-    const animation = this.animate.newGameAnimation(this.game.cardsDistribution, (id) => {
-        const card = this.game.cards.filter(c => c.id === id)[0]
-        //const card = this.cards[index]
-        const index = this.cards.findIndex(c => c.id === id)
-        const num = this.game.cardsDistribution[index]
-        card.shown = this.game.cardsDistribution[index + 1] !== num
-      },
-      () => {
-        console.log('end of new GameAnimation')
-        for (const [index, num] of this.game.cardsDistribution.entries()) {
-          const card = this.cards[index]
-          this.game.stacks.add(`bottom-${num}`)
-          card.stack = `bottom-${num}`
-          card.shown = this.game.cardsDistribution[index + 1] !== num
-        }
-        this.game.state = 'active'
-        this.timer.gameTime = 0
-      })
-    animation.restart()
-  }*/
 
   openDialog() {
     this.game.state = 'paused'

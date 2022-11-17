@@ -16,10 +16,6 @@ export class SupabaseService {
     )
   }
 
-  async getUser() {
-    return await this.supabase.auth.getUser()
-  }
-
   async getSession() {
     return await this.supabase.auth.getSession()
   }

@@ -20,6 +20,4 @@ export class VictoryDialogComponent implements OnInit {
     this.game.restartGame()
     this.dialogRef.close()
   }
-
-
 }

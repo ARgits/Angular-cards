@@ -24,7 +24,7 @@ export class GameService {
   session: Session | null = null
   state: string = 'paused'
   cardChanging: boolean = false
-  loaded:boolean = false
+  loaded: boolean = false
   readonly cardsDistribution: number[] = []
 
   get user() {
@@ -83,7 +83,7 @@ export class GameService {
 
   restartGame() {
     if (!this.cards.length) {
-      this.startGame('webp').then(() => console.log('Game has Started'))
+      this.startGame('webp')
     }
     else {
       this.state = 'paused'
@@ -140,8 +140,7 @@ export class GameService {
 
   sortCardsByStack() {
     const cards = this.cardsDistribution.map((num, index, arr) => {
-      console.log(num,index)
-      const card = this.cards.at(-(index+1))!
+      const card = this.cards.at(-(index + 1))!
       const stack = `bottom-${num}`
       const shown = num !== arr[index + 1]
       return {...card, stack, shown}
@@ -149,7 +148,7 @@ export class GameService {
     const animation = this.animate.newGameAnimation(cards)
     animation.eventCallback('onComplete', () => {
       cards.forEach((c, index) => {
-        const card = this.cards.at(-(index+1))!
+        const card = this.cards.at(-(index + 1))!
         card.shown = c.shown
         card.stack = c.stack
         this.stacks.add(c.stack)
@@ -159,35 +158,6 @@ export class GameService {
       this.timer.gameTime = 0
       animation.revert()
     })
-    // const animation = this.animate.newGameAnimation(this.cardsDistribution, () => { }, () => {
-    // })
-    // const numbers = [...new Set(this.cardsDistribution)]
-    // const cards = this.cardsDistribution.map((num, index, arr) => {
-    //   const card = this.cards[index]
-    //   const stack = `bottom-${num}`
-    //   const shown = num !== arr[index + 1]
-    //   return {...card, stack, shown}
-    // })
-    // numbers.forEach((_, index, arr) => {
-    //   const card = cards.filter(c => c.shown)[index]
-    //   if (index !== arr.length - 1) {
-    //     const flip = this.animate.flipCard(card, () => {})
-    //     animation.add(flip.paused(false),">")
-    //   }
-    //   else {
-    //     const flip = this.animate.flipCard(card, () => {
-    //       numbers.forEach(num => this.stacks.add(`bottom-${num}`))
-    //       this.cards.slice(0, this.cardsDistribution.length).forEach((card, index) => {
-    //         this.cards[index] = cards[index]
-    //       })
-    //       this.state = 'active'
-    //       this.timer.gameTime = 0
-    //     })
-    //     console.log(flip)
-    //     animation.add(flip.paused(false),">")
-    //   }
-    // })
-    //const delay = this.timer.gameTime ? 0.5 : 0
     animation.play()
   }
 
@@ -267,13 +237,8 @@ export class GameService {
     if (this.cardChanging) {
       return console.error(`other card already changing`)
     }
-    console.log('start to move cards: ', cards)
     const oldStack = cards[0].stack
     const priority = newStack.includes('final') ? -1 : 1
-    /*const check = this.checkCorrectCardPosition(cards[0], newStack)
-    if (!check) {
-      return
-    }*/
     for (const card of cards) {
       const cardIndex = this.cards.findIndex(c => c.id === card.id)
       this.cards?.splice(cardIndex, 1)
@@ -296,14 +261,9 @@ export class GameService {
     this.cards = [...this.cards, ...newCards]
     this.cardChanging = false
     this.gameFinished = this.cards.length === this.cards.filter(card => card.stack.includes('final')).length
-    console.log('finished move cards: ', cards)
   }
 
   finalSort(excludeStack: string[] = []): void {
-    /*const storeLength = this.cards.filter((card) => card.stack.includes('hiddenStore')).length
-    if (storeLength) {
-      return
-    }*/
     const shownCards = this.cards.filter((card) => card.shown && !excludeStack.includes(card.stack) && !card.stack.includes('final'))
     if (!shownCards.length) {
       return;
@@ -324,7 +284,6 @@ export class GameService {
       excludeStack.push(lastCard.stack)
       this.finalSort(excludeStack)
     }
-    console.log('final sort excluded stacks: ', excludeStack)
   }
 
   getFinalStackForCard(card: Card) {

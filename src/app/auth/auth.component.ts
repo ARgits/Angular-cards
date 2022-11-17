@@ -94,13 +94,11 @@ export class AuthComponent implements OnInit {
 
   async playWithoutLogin() {
 
-    //Если карты уже было созданы, ничего снова подгружать не надо
     //TODO: скорректировать под выбор других карточных тем в будущем
     if (this.game.cards.length) {
       this.close()
       return
     }
-    console.log('карты не были созданы, загружаем...')
     const {data} = await this.supabase.cards.list('webp')
     this.progress = 0
     this.downloadStarts = true

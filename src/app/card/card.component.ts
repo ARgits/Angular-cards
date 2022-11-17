@@ -26,7 +26,6 @@ export class CardComponent implements OnInit {
   }
 
   ngOnInit(): void {
-
   }
   getImgClass(type:string){
     return `${this.cardObject?.shown ? ' hidden' : ' '} ` + type
@@ -61,13 +60,9 @@ export class CardComponent implements OnInit {
       if (!card) {
         return
       }
-      console.log(card.id, card.shown, shown)
       card.shown = !shown
-
     })
     this.timeline.restart()
-
-
   }
 
 
@@ -119,13 +114,5 @@ export class CardComponent implements OnInit {
       this.game.loaded = true
       this.game.sortCardsByStack()
     }
-  }
-
-  ngAfterViewInit() {
-    // if (this.index === this.game.cards.length - 1) {
-    //       console.log('card ready')
-    //       this.game.sortCardsByStack()
-    //     }
-    // }
   }
 }

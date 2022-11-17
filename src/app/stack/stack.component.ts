@@ -1,8 +1,6 @@
-import {Component, Input, OnInit, SimpleChanges} from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {GameService} from "../game.service";
 import {CdkDragDrop} from "@angular/cdk/drag-drop";
-import {AnimationService} from "../animation.service";
-import {TimerService} from "../timer.service";
 
 @Component({
   selector: 'app-stack',
@@ -13,9 +11,7 @@ export class StackComponent implements OnInit {
   @Input() stackId: string = ''
 
 
-  constructor(private readonly game: GameService,
-              private readonly animate: AnimationService,
-              private readonly timer: TimerService,) {
+  constructor(private readonly game: GameService,) {
   }
 
   ngOnInit(): void {
@@ -56,7 +52,6 @@ export class StackComponent implements OnInit {
   }
 
   onDrop($event: CdkDragDrop<any>) {
-    //console.log($event)
     if ($event.previousContainer === $event.container) {
       return
     }

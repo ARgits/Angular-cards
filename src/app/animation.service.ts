@@ -12,7 +12,6 @@ export class AnimationService {
   constructor() {
     this._isActive = false
     this.returnCardsAnimation = null
-    //gsap.ticker.lagSmoothing(1000, 16)
   }
 
   get isActive() {
@@ -41,10 +40,6 @@ export class AnimationService {
             .set(second, {rotationY: -180 * direction, display: 'block'})
             .to(first, {duration: 0.25, rotationY: 180 * direction * -1},)
             .to(second, {duration: 0.25, rotationY: 0,}, 0)
-    //.to(cardElement, {z: 1}, 0)
-    //.to(cardElement, {z: 0}, )
-    //.set(cardElement, {clearProps:'transformStyle, transformPerspective'})
-    ///masterTL.eventCallback('onReverseComplete', onComplete)
     return masterTL
   }
 
