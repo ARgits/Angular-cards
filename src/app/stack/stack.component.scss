@@ -7,11 +7,11 @@
   }
 }
 
-@for $i from 1 through 20 {
-  .length-#{$i}:not([class^="final-"]) {
-    height: calc(var(--card-height) + ($i - 1) * 2 * (var(--vertical-margin)));
-  }
-}
+//@for $i from 1 through 20 {
+//  .length-#{$i}:not([class^="final-"]) {
+//    height: calc(var(--card-height) + ($i - 1) * 2 * (var(--vertical-margin)));
+//  }
+//}
 
 .empty-border {
   position: absolute;
