@@ -285,7 +285,9 @@ export class GameService {
       this.finalSort(excludeStack)
     }
   }
-
+// finalSort(){
+//     const topFinalCards = this.cards.filter((_,index,arr)=>arr.findLastIndex(c=>c.stack))
+// }
   getFinalStackForCard(card: Card) {
     const {suit} = card
     let stackId = this.cards.filter(c => c.suit === suit && c.stack.includes('final'))[0]?.stack

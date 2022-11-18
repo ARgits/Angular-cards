@@ -1,6 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
 import {GameService} from "../game.service";
-import {CdkDragDrop} from "@angular/cdk/drag-drop";
+import {CdkDragDrop,} from "@angular/cdk/drag-drop";
 
 @Component({
   selector: 'app-stack',
@@ -11,10 +11,12 @@ export class StackComponent implements OnInit {
   @Input() stackId: string = ''
 
 
-  constructor(private readonly game: GameService,) {
+  constructor(private readonly game: GameService,
+              ) {
   }
 
   ngOnInit(): void {
+    console.log()
   }
 
   get stackArr() {

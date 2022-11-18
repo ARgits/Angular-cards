@@ -20,8 +20,8 @@ body {
   --card-vertical-offset: 1vh
 }
 
-@media (min-aspect-ratio: 16/9) {
+@media (min-aspect-ratio: 9/21) {
   :root {
-    --card-vertical-offset: 4vh
+    --card-vertical-offset: 1.5vh
   }
 }
