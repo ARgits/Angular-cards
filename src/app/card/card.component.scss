@@ -7,14 +7,13 @@
     }
   }
 }
-
+@for $i from 1 through 2 {
+  .shownStore.cards3-#{$i} {
+    left: calc(var(--horizontal-margin) * ($i))
+  }
+}
 div[class*='card-'], div[class*='empty-'] {
   position: absolute;
-  @for $i from 1 through 2 {
-    &.shownStore.cards3-#{$i} {
-      left: calc(var(--horizontal-margin) * ($i))
-    }
-  }
   &:not([class*='bottom-']) {
     top: 0;
   }
