@@ -1,18 +1,28 @@
 @for $i from 0 through 51 {
-  .card-#{$i} {
+  .card-#{$i}, .empty-#{$i} {
     top: calc(var(--card-vertical-offset) * 2 * $i);
-    &:not([class*='bottom-']) {
+
+    &:not([class*='bottom-'], .shownStore) {
       left: calc(var(--horizontal-margin) * $i / 75)
     }
   }
 }
 
-div[class*='card-'] {
+div[class*='card-'], div[class*='empty-'] {
   position: absolute;
-
+  @for $i from 1 through 2 {
+    &.shownStore.cards3-#{$i} {
+      left: calc(var(--horizontal-margin) * ($i))
+    }
+  }
   &:not([class*='bottom-']) {
     top: 0;
   }
+}
+
+div[class*='empty-'] {
+  width: var(--card-width);
+  height: var(--card-height);
 }
 
 img {

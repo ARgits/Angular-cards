@@ -11,13 +11,9 @@ export class StackComponent implements OnInit {
   @Input() stackId: string = ''
 
 
-  constructor(private readonly game: GameService,
-              ) {
-  }
+  constructor(private readonly game: GameService,) { }
 
-  ngOnInit(): void {
-    console.log()
-  }
+  ngOnInit(): void { }
 
   get stackArr() {
     if (this.game.cards) {
@@ -38,11 +34,14 @@ export class StackComponent implements OnInit {
     if (this.stackId !== "hiddenStore" || this.game.state === 'paused') {
       return
     }
-    const lastCard = this.stackArr.at(-1)
-    if (!lastCard) {
-      return this.game.refreshHiddenStore()
+    this.game.state = 'paused'
+    const lastCards = this.game.gameMode ? this.stackArr.slice(-3).reverse() : this.stackArr.slice(-1)
+    if (!lastCards.length) {
+      await this.game.refreshHiddenStore()
     }
-    await this.game.getFromHiddenStore(lastCard)
+    else {
+      this.game.getFromHiddenStore(lastCards)
+    }
   }
 
   whereCanDrop() {

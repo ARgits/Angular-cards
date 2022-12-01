@@ -1,10 +1,11 @@
-import {Component, EventEmitter, OnInit, Output,} from '@angular/core';
+import {Component,  OnInit, } from '@angular/core';
 import {SupabaseService} from "./supabase.service";
 import {GameService} from "./game.service";
 import pkg from "../../package.json"
 import {Session} from "@supabase/supabase-js";
 import {MatDialog, MatDialogRef} from "@angular/material/dialog";
 import {AuthComponent} from "./auth/auth.component";
+import {LeaderBoardComponent} from "./leader-board/leader-board.component";
 
 @Component({
   selector: 'app-root',
@@ -17,8 +18,6 @@ export class AppComponent implements OnInit {
   version = pkg.version
   loading: boolean = false
   dialogRef: MatDialogRef<any> | null = null;
-
-  @Output() finishedLoading: EventEmitter<boolean> = new EventEmitter<boolean>();
 
   get user() {
     return this.session?.user
@@ -37,7 +36,9 @@ export class AppComponent implements OnInit {
   ) {
 
   }
-
+  get gameMode(){
+    return this.game.gameMode
+  }
   ngOnInit() {
     this.supabase.authChanges((changeEvent, session) => {
       this.session = session;
@@ -61,6 +62,7 @@ export class AppComponent implements OnInit {
       hasBackdrop: false,
     })
     this.dialogRef.afterClosed().subscribe(() => {
+      this.game.state = 'active'
       this.dialogRef = null
     })
   }
@@ -82,4 +84,23 @@ export class AppComponent implements OnInit {
     return this.loading || this.game.state === 'paused'
   }
 
+  openLeaderBoard() {
+    this.game.state = 'paused'
+    this.dialogRef = this.dialog.open(LeaderBoardComponent, {
+      id: "LeaderBoardComponent",
+      width: '50vw',
+      height: '50vh',
+      data: {
+        user: this.user
+      },
+    })
+    this.dialogRef.afterClosed().subscribe(() => {
+      this.game.state = 'active'
+      this.dialogRef = null
+    })
+  }
+
+  changeGameMode() {
+    this.game.gameMode = Number(!this.game.gameMode)
+  }
 }
