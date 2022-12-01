@@ -18,6 +18,8 @@
   flex-direction: row-reverse;
   justify-content: space-between;
   margin: 5px 0;
+  flex-wrap: wrap;
+  gap: 5px;
 }
 .user-info{
   display: flex;
