@@ -27,18 +27,22 @@ export class CardComponent implements OnInit {
 
   ngOnInit(): void {
   }
-  getImgClass(type:string){
+
+  getImgClass(type: string) {
     return `${this.cardObject?.shown ? ' hidden' : ' '} ` + type
   }
-  getDivClass() {
+
+  get divClass() {
+    const numberForLeftOffset = this.game.cardsLeft.findIndex(c => c.id === this.cardObject?.id)
     let cls = `card-${this.index}`
     cls += ` ${this.cardObject?.stack}`
     cls += `${this.game.loaded ? '' : ' notLoaded'}`
+    cls += `${numberForLeftOffset > 0 ? ` cards3-${numberForLeftOffset}` : ''}`
     return cls
   }
 
-  getSrc() {
-    return this.cardObject?.shown ? this.cardObject.srcCasing : this.cardObject?.srcBack ?? ''
+  get emptyClass() {
+    return `empty-${this.index} ${this.cardObject?.stack}`
   }
 
   get nextCard() {
@@ -48,26 +52,9 @@ export class CardComponent implements OnInit {
     return this.game.cards.filter(card => card.stack === this.cardObject?.stack)[this.index + 1]
   }
 
-  flipOnClick() {
-    if (!this.cardObject) {
-      return
-    }
-
-    this.timeline = this.animate.flipCard(this.cardObject,)
-    this.timeline.eventCallback('onComplete', () => {
-      const {shown} = this.cardObject!;
-      const card = this.game.cards.find(c => c.id === this.cardObject!.id)
-      if (!card) {
-        return
-      }
-      card.shown = !shown
-    })
-    this.timeline.restart()
-  }
-
 
   onDragStart({$event}: {$event: any}) {
-
+    console.log($event);
     if (!this.cardObject) {
       return
     }
@@ -106,6 +93,7 @@ export class CardComponent implements OnInit {
       this.game.finalSort()
       move.revert()
     })
+    this.game.state = 'paused'
     move.play()
   }
 

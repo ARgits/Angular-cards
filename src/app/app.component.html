@@ -2,6 +2,8 @@
   <p>Version:{{version}}</p>
   <app-timer></app-timer>
   <div class="buttons">
+    <button type="button" mat-raised-button [disabled]="isButtonDisabled()" (click)="openLeaderBoard()">Open LeaderBoard</button>
+    <button type="button" mat-raised-button [disabled]="isButtonDisabled()" (click)="changeGameMode()">Change game mode: {{gameMode ? "3 cards" : "1 card"}}</button>
     <div class="user-info" *ngIf="user; else login">
       <span>
         Hello, {{user.email}}!
