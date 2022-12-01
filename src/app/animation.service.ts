@@ -6,20 +6,11 @@ import gsap from "gsap";
   providedIn: 'root'
 })
 export class AnimationService {
-  private _isActive: boolean
+
   returnCardsAnimation: gsap.core.Timeline | null;
 
   constructor() {
-    this._isActive = false
     this.returnCardsAnimation = null
-  }
-
-  get isActive() {
-    return this._isActive
-  }
-
-  set isActive(tl: any) {
-    this._isActive = tl.isActive()
   }
 
   get hiddenStoreCoordinates() {
@@ -38,24 +29,23 @@ export class AnimationService {
       transformPerspective: 1000,
     })
             .set(second, {rotationY: -180 * direction, display: 'block'})
-            .to(first, {duration: 0.25, rotationY: 180 * direction * -1},)
-            .to(second, {duration: 0.25, rotationY: 0,}, 0)
+            .to(first, {duration: 0.15, rotationY: 180 * direction * -1},)
+            .to(second, {duration: 0.15, rotationY: 0,}, 0)
     return masterTL
   }
 
-  moveCard(card: Card, newStackID: string, duration: number = .25) {
+  moveCard(card: Card, newStackID: string, duration: number = .15) {
     const cardElement = document.querySelector(`#${card.id}`)
-    const cardElementXandY = cardElement!.getBoundingClientRect()
+    const cardElementXY = cardElement!.getBoundingClientRect()
     const stackElement = document.getElementById(newStackID)!
     const newCardIndex = 1
     const {x, y} = stackElement.getBoundingClientRect()
     const offsetY = newStackID.includes('bottom') ? window.innerHeight * .01 * newCardIndex * 2 : 0
     const tl = gsap.timeline({paused: true})
-    this.isActive = tl
     tl.set(`div.stack:not(#${card.stack})`, {css: {zIndex: -1}})
       .to(cardElement, {
-        x: x - cardElementXandY.x,
-        y: y + offsetY - cardElementXandY.y,
+        x: x - cardElementXY.x,
+        y: y + offsetY - cardElementXY.y,
         duration,
       })
     return tl
@@ -76,9 +66,8 @@ export class AnimationService {
       const stack = document.getElementsByClassName(`stack ${stackID}`)
       const stackCoordinates = stack[0].getBoundingClientRect()
       const offsetY = cardsDistribution.findIndex(value => value.stack === stackID) - index
-      const duration = .25
+      const duration = .15
       const position = index * 0.05
-      console.log(x, stackCoordinates.x, stackID)
       masterTL.set(elem, {
         transformStyle: 'preserve-3d',
         transformPerspective: 1000,
@@ -100,9 +89,8 @@ export class AnimationService {
   }
 
   returnToHiddenStore(onCompleteFunc: gsap.Callback | null) {
-    const cards = gsap.utils.toArray('img:not(.hiddenStore)').reverse()
+    const cards = gsap.utils.toArray("img:not(.hiddenStore)").reverse()
     const masterTL = gsap.timeline({paused: true})
-    this.isActive = masterTL
     const {x, y} = this.hiddenStoreCoordinates
     masterTL.set(cards, {css: {zIndex: 1},})
             .to(cards, {
@@ -122,7 +110,7 @@ export class AnimationService {
                   gsap.set(target, {css: {zIndex: 0}})
                 }
               },
-              duration: 0.25,
+              duration: 0.15,
               onComplete: function () {
                 if (onCompleteFunc) {
                   onCompleteFunc()
@@ -133,15 +121,5 @@ export class AnimationService {
     return masterTL
   }
 
-  shuffle(array: any[]) {
-    const newArray = [...array]
-    let m = newArray.length, t, i
-    while (m) {
-      i = Math.floor(Math.random() * m--)
-      t = newArray[m]
-      newArray[m] = newArray[i]
-      newArray[i] = t
-    }
-    return [...newArray]
-  }
+
 }

@@ -2,6 +2,7 @@ import {Component, OnInit} from '@angular/core';
 import {timer} from "rxjs";
 import {GameService} from "../game.service";
 import {TimerService} from "../timer.service";
+import gsap from "gsap";
 
 @Component({
   selector: 'app-timer',
@@ -16,6 +17,7 @@ export class TimerComponent implements OnInit {
 
   ngOnInit(): void {
     const convertToTime = () => {
+      gsap.ticker.lagSmoothing(document.hidden ? 0 : 500, document.hidden ? 0 : 33)
       if (this.game.state === 'active' && !document.hidden) {
         const time = this.timer.gameTime
         const hours = Math.floor(time / 3600)
