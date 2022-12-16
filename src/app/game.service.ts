@@ -8,7 +8,6 @@ import {Session} from "@supabase/supabase-js";
 import {TimerService} from "./timer.service";
 import {AnimationService} from "./animation.service";
 import {shuffle} from "./utils"
-import gsap from "gsap";
 
 @Injectable({
   providedIn: 'root'
@@ -185,39 +184,21 @@ export class GameService {
   }
 
   getFromHiddenStore(cards: Card[]) {
-    console.log(cards)
     if (!cards) {
       return
     }
-    if (this.gameMode) {
-      const anim = gsap.timeline({paused: true});
-      cards.forEach((card) => {
-        const move = this.animate.moveCard(card, 'shownStore')
-        const flip = this.animate.flipCard(card)
-        flip.add(move.paused(false), "<+=50%")
-        anim.add(flip.paused(false))
-      })
-      anim.eventCallback('onComplete', () => {
-        this.changeStack(cards, 'shownStore')
-        this.state = 'active'
-        this.cardsLeft = cards
-        console.log(this.cardsLeft)
-        anim.revert()
-      })
-      anim.play()
-    }
-    else {
-      const card = cards[0]
-      const move = this.animate.moveCard(card, 'shownStore')
-      move.eventCallback('onComplete', () => {
-        this.changeStack(cards, 'shownStore')
-        this.state = 'active'
-        move.revert()
-      })
-      const flip = this.animate.flipCard(card)
-      flip.add(move.paused(false), "<+=50%")
-      flip.play()
-    }
+    const newCards = cards.map(c => {
+      return {...c, stack: 'shownStore', shown: true}
+    })
+    console.log(newCards)
+    const anim = this.animate.newGameAnimation(newCards)
+    anim.eventCallback('onComplete', () => {
+      this.changeStack(cards, 'shownStore')
+      this.cardsLeft = this.gameMode ? cards : []
+      this.state = 'active'
+      anim.revert()
+    })
+    anim.play()
   }
 
   async refreshHiddenStore() {
@@ -288,10 +269,8 @@ export class GameService {
     }
     const newCards = <Card[]>[...cards, previousStackNewLastCard].filter(c => c)
     if (!newStack.includes('Store')) {
-      console.log('sorting')
       newCards.sort((a, b) => (priority * (b!.priority - a!.priority)))
     }
-    console.log(newCards)
     this.cards = [...this.cards, ...newCards]
     this.gameFinished = this.cards.length === this.cards.filter(card => card.stack.includes('final')).length
   }

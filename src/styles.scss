@@ -19,6 +19,39 @@ body {
   --vertical-margin: 1vh;
   --card-vertical-offset: 1vh
 }
+@for $i from 0 through 51 {
+  .card-#{$i}, .empty-#{$i} {
+    top: calc(var(--card-vertical-offset) * 1.5 * $i);
+
+    &:not([class*='bottom-'], .shownStore) {
+      left: calc(var(--horizontal-margin) * $i / 50)
+    }
+  }
+}
+div[class*='card-'], div[class*='empty-'] {
+  position: absolute;
+  &:not([class*='bottom-']) {
+    top: 0;
+  }
+}
+
+div[class*='empty-'] {
+  width: var(--card-width);
+  height: var(--card-height);
+}
+//@for $i from 2 through 3 {
+//  .shownStore.cards3-#{$i}:nth-last-child() {
+//    left: calc(var(--horizontal-margin) * ($i))
+//  }
+//}
+.shownStore{
+  &.cards3-1{
+    left:calc(var(--horizontal-margin) * 1);
+  }
+  &.cards3-2,{
+    left:calc(var(--horizontal-margin) * 2);
+  }
+}
 
 @media (min-aspect-ratio: 9/21) {
   :root {

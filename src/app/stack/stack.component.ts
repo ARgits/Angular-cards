@@ -9,11 +9,37 @@ import {CdkDragDrop,} from "@angular/cdk/drag-drop";
 })
 export class StackComponent implements OnInit {
   @Input() stackId: string = ''
+  readonly storeMaxNumberOfCards: {[key: string]: number};
 
 
-  constructor(private readonly game: GameService,) { }
+  constructor(private readonly game: GameService,) {
+    this.storeMaxNumberOfCards = {
+      Store: 52,
+      final: 13,
+      bottom: 20
+    }
+  }
 
-  ngOnInit(): void { }
+  ngOnInit(): void {
+  }
+
+  get maxNumberOfCards() {
+    for (const [key, value] of Object.entries(this.storeMaxNumberOfCards)) {
+      if (this.stackId.includes(key)) {
+        //const len = this.stackId === 'shownStore' ? this.stackArr.length + Math.max(1, this.game.gameMode * 3) : value
+        return Array(value).fill(null).map((c, index) => index)
+      }
+    }
+    return []
+  }
+cardsLeft(num:number){
+    if(!this.gameMode) return ''
+  return `cards3-${num - this.stackArr.length}`
+}
+
+  get gameMode() {
+    return this.game.gameMode
+  }
 
   get stackArr() {
     if (this.game.cards) {
@@ -25,7 +51,7 @@ export class StackComponent implements OnInit {
   getClass() {
     let cls: string = 'stack'
     cls += ` ${this.stackId}`
-    cls += ` length-${this.stackId.includes('bottom') ? this.stackArr.length : 0}`
+    cls += ` length-${this.stackArr.length}`
     return cls
   }
 

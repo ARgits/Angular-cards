@@ -1,8 +1,7 @@
-import {Component, ElementRef, Input, OnInit, ViewChild} from '@angular/core';
+import {Component, Input, OnInit, ViewChild} from '@angular/core';
 import {GameService} from "../game.service";
 import {Card} from "../Card";
 import {AnimationService} from "../animation.service";
-import gsap from "gsap";
 
 @Component({
   selector: 'app-card',
@@ -13,24 +12,16 @@ export class CardComponent implements OnInit {
   @ViewChild('card') cardElement: any
   @Input() cardObject: Card | null = null
   @Input() index: number = 0
-  private selector: gsap.utils.SelectorFunc;
-  private timeline: gsap.core.Timeline;
-  loaded: boolean = false
 
 
   constructor(private readonly game: GameService,
-              private readonly animate: AnimationService,
-              private element: ElementRef) {
-    this.selector = gsap.utils.selector(element)
-    this.timeline = gsap.timeline({paused: true})
+              private readonly animate: AnimationService,) {
   }
 
   ngOnInit(): void {
   }
 
-  getImgClass(type: string) {
-    return `${this.cardObject?.shown ? ' hidden' : ' '} ` + type
-  }
+
 
   get divClass() {
     const numberForLeftOffset = this.game.cardsLeft.findIndex(c => c.id === this.cardObject?.id)
@@ -38,11 +29,8 @@ export class CardComponent implements OnInit {
     cls += ` ${this.cardObject?.stack}`
     cls += `${this.game.loaded ? '' : ' notLoaded'}`
     cls += `${numberForLeftOffset > 0 ? ` cards3-${numberForLeftOffset}` : ''}`
+    cls += `${this.cardObject?.shown ? ' hidden' : ''}`
     return cls
-  }
-
-  get emptyClass() {
-    return `empty-${this.index} ${this.cardObject?.stack}`
   }
 
   get nextCard() {
@@ -54,7 +42,6 @@ export class CardComponent implements OnInit {
 
 
   onDragStart({$event}: {$event: any}) {
-    console.log($event);
     if (!this.cardObject) {
       return
     }

@@ -1,28 +1,24 @@
-@for $i from 0 through 51 {
-  .card-#{$i}, .empty-#{$i} {
-    top: calc(var(--card-vertical-offset) * 2 * $i);
+//@for $i from 0 through 51 {
+//  .card-#{$i}, .empty-#{$i} {
+//    top: calc(var(--card-vertical-offset) * 2 * $i);
+//
+//    &:not([class*='bottom-'], .shownStore) {
+//      left: calc(var(--horizontal-margin) * $i / 75)
+//    }
+//  }
+//}
 
-    &:not([class*='bottom-'], .shownStore) {
-      left: calc(var(--horizontal-margin) * $i / 75)
-    }
-  }
-}
-@for $i from 1 through 2 {
-  .shownStore.cards3-#{$i} {
-    left: calc(var(--horizontal-margin) * ($i))
-  }
-}
-div[class*='card-'], div[class*='empty-'] {
-  position: absolute;
-  &:not([class*='bottom-']) {
-    top: 0;
-  }
-}
-
-div[class*='empty-'] {
-  width: var(--card-width);
-  height: var(--card-height);
-}
+//div[class*='card-'], div[class*='empty-'] {
+//  position: absolute;
+//  &:not([class*='bottom-']) {
+//    top: 0;
+//  }
+//}
+//
+//div[class*='empty-'] {
+//  width: var(--card-width);
+//  height: var(--card-height);
+//}
 
 img {
   position: absolute;
@@ -32,9 +28,10 @@ img {
   height: var(--card-height);
   backface-visibility: hidden;
 
-  &.hidden.back {
-    display: none;
-  }
+}
+
+.hidden .back {
+  display: none;
 }
 
 .cdk-drag-placeholder {

@@ -1,5 +1,8 @@
 <div cdkDropList [id]="stackId" [cdkDropListData]="stackId" [cdkDropListConnectedTo]="whereCanDrop()"
      (cdkDropListDropped)="onDrop($event)" cdkDropListSortingDisabled [class]="getClass()" (click)="click($event)">
   <div class="empty-border"></div>
+  <div>
+    <div *ngFor="let num of maxNumberOfCards" class="empty-{{num}} {{stackId}} {{gameMode?cardsLeft(num):''}}"></div>
+  </div>
   <app-card *ngIf="stackArr.length" [cardObject]="stackArr[0]" [index]="0"></app-card>
 </div>

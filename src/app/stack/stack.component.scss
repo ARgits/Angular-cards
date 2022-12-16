@@ -10,8 +10,10 @@
 
 @for $i from 1 through 51 {
   div.length-#{$i}[class*='bottom-'] {
-    height: calc(var(--card-height) + var(--card-vertical-offset) * ($i - 1) * 2);
-    --stack-length: #{$i}
+    height: calc(var(--card-height) + var(--card-vertical-offset) * ($i - 1) * 1.5);
+  }
+  .empty-#{$i} {
+    position: absolute;
   }
 }
 
