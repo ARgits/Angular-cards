@@ -1,8 +1,8 @@
 <div>
-  <p> Are you sure you want to {{actionMessage}}?</p>
+  <p> Are you sure you want to <span class="actionMessage">{{actionMessage}} <span class="modeName" *ngIf="data.action==='gamemode'">{{modeName}}</span></span>?</p>
   <p>Current progress will be lost.</p>
 </div>
 <div class="buttons">
-  <button mat-raised-button type="button" (click)="newGame()" >Yes</button>
-  <button mat-raised-button type="button" (click)="closeDialog()" >No</button>
+  <button mat-raised-button type="button" (click)="newGame()">Yes</button>
+  <button mat-raised-button type="button" (click)="closeDialog()">No</button>
 </div>

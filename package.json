@@ -1,6 +1,6 @@
 {
   "name": "angular-cards",
-  "version": "1.2.18 test",
+  "version": "1.2.19 test",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",

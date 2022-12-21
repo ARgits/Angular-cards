@@ -22,11 +22,15 @@ export class NewGameDialogComponent implements OnInit {
 
   get actionMessage() {
     if (this.data.action === 'gamemode') {
-      return 'change game mode to' + (this.game.gameMode ? ' vanilla' : ' 3 cards')
+      return 'change game mode to'
     }
     else {
       return 'start new game'
     }
+  }
+
+  get modeName() {
+    return this.game.gameMode ? "3 cards" : "vanilla"
   }
 
   newGame() {
