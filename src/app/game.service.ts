@@ -53,6 +53,16 @@ export class GameService {
     this.theme = 'webp'
     supabase.getSession().then(({data: {session}}) => this.session = session)
     this.cardsDistribution = ([] as number[]).concat(...Array(this.numberOfStack).fill(null).map((item, index) => Array(index + 1).fill(null).map(() => index + 1)))
+
+  }
+
+  get stackPriority() {
+    const obj: {[index: string]: number} = {}
+    for (const [index, stack] of [...this.stacks].entries()) {
+      obj[stack] = index
+    }
+    console.log(obj)
+    return obj
   }
 
   set gameFinished(isFinished: boolean) {
@@ -95,20 +105,23 @@ export class GameService {
     }
   }
 
-  restartGame() {
+  restartGame(gameMode: number = 0) {
     if (!this.cards.length) {
       this.startGame('webp').then()
     }
     else {
       this.state = 'paused'
-      const collectCardsAnimation = this.animate.returnToHiddenStore(
+      const collectCardsAnimation = this.animate.returnToHiddenStore(this.cards.filter((c) => c.stack !== 'hiddenStore').reverse()
+                                                                         .sort((a, b) => {
+                                                                           return this.stackPriority[b.stack] - this.stackPriority[a.stack]
+                                                                         }),
         () => {
           this.cards.forEach(c => {
             c.stack = 'hiddenStore';
             c.shown = false
           })
           this.shuffle()
-          collectCardsAnimation.revert()
+          this.gameMode = gameMode
         })
       collectCardsAnimation.play()
     }

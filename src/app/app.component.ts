@@ -1,4 +1,4 @@
-import {Component,  OnInit, } from '@angular/core';
+import {Component, OnInit,} from '@angular/core';
 import {SupabaseService} from "./supabase.service";
 import {GameService} from "./game.service";
 import pkg from "../../package.json"
@@ -6,6 +6,7 @@ import {Session} from "@supabase/supabase-js";
 import {MatDialog, MatDialogRef} from "@angular/material/dialog";
 import {AuthComponent} from "./auth/auth.component";
 import {LeaderBoardComponent} from "./leader-board/leader-board.component";
+import {NewGameDialogComponent} from "./new-game-dialog/new-game-dialog.component";
 
 @Component({
   selector: 'app-root',
@@ -28,17 +29,14 @@ export class AppComponent implements OnInit {
     return this.game.cards
   }
 
-  constructor
-  (
-    private supabase: SupabaseService,
-    private game: GameService,
-    public dialog: MatDialog,
-  ) {
+  constructor(private supabase: SupabaseService,
+              private game: GameService,
+              public dialog: MatDialog,) { }
 
-  }
-  get gameMode(){
+  get gameMode() {
     return this.game.gameMode
   }
+
   ngOnInit() {
     this.supabase.authChanges((changeEvent, session) => {
       this.session = session;
@@ -47,7 +45,13 @@ export class AppComponent implements OnInit {
   }
 
   startNewGame() {
-    this.game.restartGame()
+    this.game.state = 'paused'
+    this.dialogRef = this.dialog.open(NewGameDialogComponent, {
+      id: "NewGameDialogComponent",
+      data: {
+        action: 'newGame'
+      }
+    })
   }
 
   openDialog() {
@@ -101,6 +105,12 @@ export class AppComponent implements OnInit {
   }
 
   changeGameMode() {
-    this.game.gameMode = Number(!this.game.gameMode)
+    this.game.state = 'paused'
+    this.dialogRef = this.dialog.open(NewGameDialogComponent, {
+      id: "NewGameDialogComponent",
+      data: {
+        action: 'gamemode'
+      }
+    })
   }
 }

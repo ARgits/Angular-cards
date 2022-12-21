@@ -17,6 +17,7 @@ import {MatInputModule} from "@angular/material/input";
 import {VictoryDialogComponent} from './victory-dialog/victory-dialog.component';
 import {TimerComponent} from './timer/timer.component';
 import { LeaderBoardComponent } from './leader-board/leader-board.component';
+import { NewGameDialogComponent } from './new-game-dialog/new-game-dialog.component';
 
 @NgModule({
   declarations: [
@@ -27,6 +28,7 @@ import { LeaderBoardComponent } from './leader-board/leader-board.component';
     VictoryDialogComponent,
     TimerComponent,
     LeaderBoardComponent,
+    NewGameDialogComponent,
   ],
   imports: [
     BrowserModule,

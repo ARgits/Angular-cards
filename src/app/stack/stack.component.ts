@@ -26,7 +26,6 @@ export class StackComponent implements OnInit {
   get maxNumberOfCards() {
     for (const [key, value] of Object.entries(this.storeMaxNumberOfCards)) {
       if (this.stackId.includes(key)) {
-        //const len = this.stackId === 'shownStore' ? this.stackArr.length + Math.max(1, this.game.gameMode * 3) : value
         return Array(value).fill(null).map((c, index) => index)
       }
     }
