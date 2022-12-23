@@ -44,13 +44,31 @@ export class AppComponent implements OnInit {
     this.openDialog()
   }
 
-  startNewGame() {
+  startNewGame($event: MouseEvent) {
+    if (!$event) {
+      return
+    }
+    let x, y = 0
+    if ($event.target instanceof HTMLElement) {
+      const XY = $event.target.getBoundingClientRect()
+      x = XY.x
+      y = XY.y
+    }
     this.game.state = 'paused'
     this.dialogRef = this.dialog.open(NewGameDialogComponent, {
       id: "NewGameDialogComponent",
+      position: {
+        top: y + 'px',
+        left: x + 'px',
+      },
+      disableClose:true,
       data: {
         action: 'newGame'
       }
+    })
+    this.dialogRef.afterClosed().subscribe(() => {
+      this.game.state = 'active'
+      this.dialogRef = null
     })
   }
 
@@ -104,13 +122,31 @@ export class AppComponent implements OnInit {
     })
   }
 
-  changeGameMode() {
+  changeGameMode($event: MouseEvent) {
+    if (!$event) {
+      return
+    }
+    let x, y = 0
+    if ($event.target instanceof HTMLElement) {
+      const XY = $event.target.getBoundingClientRect()
+      x = XY.x
+      y = XY.y
+    }
     this.game.state = 'paused'
     this.dialogRef = this.dialog.open(NewGameDialogComponent, {
       id: "NewGameDialogComponent",
+      position: {
+        top: y + 'px',
+        left: x + 'px',
+      },
       data: {
         action: 'gamemode'
-      }
+      },
+      disableClose:true,
+    })
+    this.dialogRef.afterClosed().subscribe(() => {
+      this.game.state = 'active'
+      this.dialogRef = null
     })
   }
 }

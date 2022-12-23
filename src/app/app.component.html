@@ -13,11 +13,11 @@
   </div>
   <div class="app__buttons">
     <button type="button" mat-raised-button [disabled]="isButtonDisabled()" (click)="openLeaderBoard()">Open LeaderBoard</button>
-    <button type="button" mat-raised-button [disabled]="isButtonDisabled()" (click)="changeGameMode()">Change game mode: {{gameMode ? "3 cards" : "1 card"}}</button>
+    <button type="button" mat-raised-button [disabled]="isButtonDisabled()" (click)="changeGameMode($event)">Change game mode: {{gameMode ? "3 cards" : "1 card"}}</button>
     <ng-template #login>
       <button [disabled]="isButtonDisabled()" mat-raised-button type="button" (click)="openDialog()">Login</button>
     </ng-template>
-    <button [disabled]="isButtonDisabled()" mat-raised-button type="button" (click)="startNewGame()">Start New Game</button>
+    <button [disabled]="isButtonDisabled()" mat-raised-button type="button" (click)="startNewGame($event)">Start New Game</button>
   </div>
   <div class="app__top">
     <app-stack [stackId]="'hiddenStore'"></app-stack>
