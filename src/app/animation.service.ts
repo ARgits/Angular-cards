@@ -86,38 +86,4 @@ export class AnimationService {
     })
     return masterTL
   }
-
-  // getFromHiddenStore(cards: Card[], onCompleteFunc: gsap.Callback | null) {
-  //   //const cardsArr = cards.map((c => document.getElementById(c.id)))
-  //   const masterTL = gsap.timeline({paused: true})
-  //   cards.forEach((card, index) => {
-  //     const elem = document.getElementById(card.id)!
-  //     const position = index * 0.05
-  //     masterTL.set(elem, {
-  //       transformStyle: 'preserve-3d',
-  //       transformPerspective: 1000,
-  //     })
-  //             .to(elem, {z: index}, position)
-  //             .set(elem, {css: {zIndex: index}}, position)
-  //             .set(second, {rotationY: -180 * rotation}, position)
-  //             .to(elem, {
-  //               x: stackCoordinates.x - x,
-  //               y: stackCoordinates.y - y,
-  //               duration,
-  //             }, position)
-  //             .add(elem.id)
-  //             .to(elem, {z: 0}, `${elem.id}-=100%`)
-  //             .to(first, {rotationY: 180 * rotation * -1, duration}, `${elem.id}-=100%`)
-  //             .to(second, {rotationY: 0, duration}, `${elem.id}-=100%`)
-  //   })
-  //   masterTL.eventCallback('onComplete', () => {
-  //     if (onCompleteFunc) {
-  //       onCompleteFunc()
-  //     }
-  //     masterTL.revert()
-  //   })
-  //   return masterTL
-  // }
-
-
 }
