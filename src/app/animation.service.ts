@@ -41,7 +41,7 @@ export class AnimationService {
     const x = Math.floor((targetXY.x - cardElementXY.x))
     const y = Math.floor((targetXY.y - cardElementXY.y))
     const tl = gsap.timeline({paused: true})
-    tl.set(cardElement, {css: {zIndex: offsetIndex}})
+    tl.set(cardElement, {css: {zIndex: offsetIndex+10}})
     tl.to(cardElement, {
       x: "+=" + x,
       y: "+=" + y,

@@ -7,6 +7,8 @@ import {MatDialog, MatDialogRef} from "@angular/material/dialog";
 import {AuthComponent} from "./auth/auth.component";
 import {LeaderBoardComponent} from "./leader-board/leader-board.component";
 import {NewGameDialogComponent} from "./new-game-dialog/new-game-dialog.component";
+import gsap from "gsap";
+import {Draggable} from "gsap/Draggable"
 
 @Component({
   selector: 'app-root',
@@ -31,7 +33,11 @@ export class AppComponent implements OnInit {
 
   constructor(private supabase: SupabaseService,
               private game: GameService,
-              public dialog: MatDialog,) { }
+              public dialog: MatDialog,
+              ) {
+    gsap.registerPlugin(Draggable)
+    console.log('gsap register Draggapble plugin')
+  }
 
   get gameMode() {
     return this.game.gameMode
@@ -43,7 +49,9 @@ export class AppComponent implements OnInit {
     })
     this.openDialog()
   }
-
+  ngOnChanges():void{
+    console.log('ngOnChanges', this.cards)
+  }
   startNewGame($event: MouseEvent) {
     if (!$event) {
       return

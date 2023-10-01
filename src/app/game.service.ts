@@ -157,7 +157,10 @@ export class GameService {
             srcCasing: '',
             stack: 'hiddenStore',
             suit: s,
-            width: 138
+            width: 138,
+            canDrag:function(){
+              return this.shown
+              },
           }
           this.cards.push(card)
         }
@@ -203,7 +206,6 @@ export class GameService {
     const newCards = cards.map(c => {
       return {...c, stack: 'shownStore', shown: true}
     })
-    console.log(newCards)
     const anim = this.animate.newGameAnimation(newCards)
     anim.eventCallback('onComplete', () => {
       this.changeStack(cards, 'shownStore')
