@@ -30,7 +30,7 @@ export class NewGameDialogComponent implements OnInit {
   }
 
   get modeName() {
-    return this.game.gameMode ? "3 cards" : "vanilla"
+    return !this.game.gameMode ? "3 cards" : "vanilla"
   }
 
   newGame() {
