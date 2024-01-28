@@ -1,6 +1,8 @@
 import {Component, Input, OnInit, ViewChild} from '@angular/core';
 import {GameService} from "../game.service";
 import {Card} from "../Card";
+import {AnimationService} from "../animation.service";
+import {Draggable} from "gsap/Draggable";
 import gsap from "gsap";
 
 @Component({
@@ -12,20 +14,44 @@ export class CardComponent implements OnInit {
   @ViewChild('card') cardElement: any
   @Input() cardObject: Card | null = null
   @Input() index: number = 0
+  @Input() canDrag: boolean = false
 
 
-  constructor(private readonly game: GameService,) {
+  constructor(private readonly game: GameService,
+              private readonly animate: AnimationService,
+  ) {
+    /* Draggable.create(this.cardElement,{
+       onDragStart:()=>{
+         console.log('drag start')
+       }
+     })*/
+  }
+
+  ngOnInit(): void {
+
+  }
+
+  ngOnChanges(): void {
+    if (this.canDrag && this.cardElement) {
+      this.configureDragNdrop()
+    }
+  }
+
+  ngAfterViewInit(): void {
+    if (this.canDrag) {
+      this.configureDragNdrop()
+    }
   }
 
 
-  getClass() {
-    let cls = `card-${this.index}`
+  get divClass() {
+    const numberForLeftOffset = this.game.cardsLeft.findIndex(c => c.id === this.cardObject?.id)
+    let cls = `card card-${this.index}`
     cls += ` ${this.cardObject?.stack}`
+    cls += `${this.game.loaded ? '' : ' notLoaded'}`
+    cls += `${numberForLeftOffset > 0 ? ` cards3-${numberForLeftOffset}` : ''}`
+    cls += `${this.cardObject?.shown ? ' hidden' : ''}`
     return cls
-  }
-
-  getSrc() {
-    return this.cardObject?.shown ? this.cardObject.srcCasing : this.cardObject?.srcBack ?? ''
   }
 
   get nextCard() {
@@ -35,10 +61,8 @@ export class CardComponent implements OnInit {
     return this.game.cards.filter(card => card.stack === this.cardObject?.stack)[this.index + 1]
   }
 
-  ngOnInit(): void { }
 
-  onDragStart({$event}: {$event: any}) {
-
+  onDragStart({$event}: { $event: any }) {
     if (!this.cardObject) {
       return
     }
@@ -51,18 +75,70 @@ export class CardComponent implements OnInit {
       return
     }
     $event.source.data = [...stackArr.slice(cardIndex)]
+    console.log($event)
   }
 
-  canDrag() {
+  dragDisabled() {
     const stackArr = this.game.cards!.filter(c => c.stack === this.cardObject?.stack)
-    return (!this.cardObject?.shown && this.index !== stackArr.length - 1) || this.cardObject?.stack === 'hiddenStore'
+    return this.game.state === 'paused' || (!this.cardObject?.shown && this.index !== stackArr.length - 1) || this.cardObject?.stack === 'hiddenStore'
+  }
+
+  configureDragNdrop() {
+    const elem = this.cardElement.nativeElement
+    const obj = this.cardObject
+    const game = this.game
+    if (obj && elem && game) {
+      let elems: any[] = [elem]
+      let cards: Card[] = [obj]
+      Draggable.create(elem, {
+//        onPressInit:function(e){
+//          gsap.set(this["target"],{zIndex:0})
+//        },
+//        onClick:function(e){
+//          gsap.set(this["target"],{zIndex:0})
+//        },
+        onDragStart: (_) => {
+          const currentStack = obj.stack
+          if (currentStack.includes('bottom')) {
+            cards = this.game.cards.filter((c) => c.stack === currentStack)
+            cards = cards.filter((c,i)=>c.shown&&i>=this.index)
+            elems = cards.map((c) => `#${document.getElementById(c.id)?.id}`)
+
+          }
+          gsap.set(elems, {zIndex: 1})
+        },
+        onDrag: function (_) {
+          if (elems.length > 1) {
+            gsap.set(elems.filter(e => e !== `#${elem.id}`), {x: this["x"], y: this["y"]})
+          }
+        },
+        onDragEnd: function (e: PointerEvent) {
+          const {x, y} = e
+          const stack = document.elementsFromPoint(x, y).filter((el) => el.className.includes('stack'))[0]?.id
+          if (stack && cards.length) {
+            const check = game.checkCorrectCardPosition(cards[0], stack)
+            if (check) {
+              game.changeStack(cards, stack)
+            } else {
+              console.log(elems)
+              gsap.set(elems, {x: 0, y: 0, zIndex: 0})
+            }
+          } else {
+            console.log(elems)
+            gsap.set(elems, {x: 0, y: 0, zIndex: 0})
+          }
+        },
+        force3D: true,
+        zIndexBoost: false
+      })
+    }
   }
 
   async sendToFinalStack() {
-    if (!this.cardObject) {
+    if (!this.cardObject || this.game.state === 'paused') {
       return
     }
-    const {shown, } = this.cardObject
+    const {shown,} = this.cardObject
     if (!shown) {
       return
     }
@@ -71,23 +147,20 @@ export class CardComponent implements OnInit {
     if (!check) {
       return;
     }
-    const {x, y} = document.getElementsByClassName(stackId)[0].getBoundingClientRect()
-    const cardCoordinates = this.cardElement.nativeElement.getBoundingClientRect()
-    const tl = gsap.timeline({yoyo: true})
-    tl.set(this.cardElement.nativeElement, {css: {zIndex: 1}})
-      .to(this.cardElement.nativeElement, {
-        x: x - cardCoordinates.x,
-        y: y - cardCoordinates.y,
-        onStart: () => {
-          this.game.cardChanging = true
-        },
-        onComplete: () => {
-          this.game.cardChanging = false
-          this.game.changeStack([this.cardObject!], stackId);
-          this.game.finalSort()
-        },
-        duration: 0.25,
-      })
+    const move = this.animate.moveCard(this.cardObject, stackId,)
+    move.eventCallback('onComplete', () => {
+      this.game.changeStack([this.cardObject!], stackId);
+      this.game.finalSort()
+      move.revert()
+    })
+    this.game.state = 'paused'
+    move.play()
   }
 
+  onCardLoad() {
+    if (this.index === this.game.cards.length - 1) {
+      this.game.loaded = true
+      this.game.sortCardsByStack()
+    }
+  }
 }

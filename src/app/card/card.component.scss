@@ -1,19 +1,37 @@
-@for $i from 0 through 30 {
-  .card-#{$i} {
-    position: absolute;
-    top: calc(var(--vertical-margin) * 2 * $i);
+//@for $i from 0 through 51 {
+//  .card-#{$i}, .empty-#{$i} {
+//    top: calc(var(--card-vertical-offset) * 2 * $i);
+//
+//    &:not([class*='bottom-'], .shownStore) {
+//      left: calc(var(--horizontal-margin) * $i / 75)
+//    }
+//  }
+//}
 
-    &:not(img[class*='bottom-']) {
-      top: 0
-    }
-  }
-}
+//div[class*='card-'], div[class*='empty-'] {
+//  position: absolute;
+//  &:not([class*='bottom-']) {
+//    top: 0;
+//  }
+//}
+//
+//div[class*='empty-'] {
+//  width: var(--card-width);
+//  height: var(--card-height);
+//}
 
 img {
+  position: absolute;
   -webkit-user-drag: none;
   user-select: none;
   width: var(--card-width);
-  height: var(--card-height)
+  height: var(--card-height);
+  backface-visibility: hidden;
+
+}
+
+.hidden .back {
+  display: none;
 }
 
 .cdk-drag-placeholder {

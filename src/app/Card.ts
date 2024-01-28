@@ -10,4 +10,5 @@ export interface Card {
   shown:boolean,
   color:string,
   srcBack:string,
+  canDrag():boolean
 }

@@ -19,10 +19,6 @@
           <mat-label>Email</mat-label>
           <input matInput #email type="email"/>
         </mat-form-field>
-        <!--<mat-form-field *ngIf="stage==='login'">
-          <mat-label>Login</mat-label>
-          <input matInput #login type="text"/>
-        </mat-form-field>-->
         <mat-form-field>
           <mat-label>Password</mat-label>
           <input matInput #password type="password"/>
@@ -37,7 +33,6 @@
                 [disabled]="loading">
           {{loading ? "Loading" : "SignUp"}}
         </button>
-
       </div>
     </div>
 

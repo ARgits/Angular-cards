@@ -1,26 +1,30 @@
-<div class="main">
-  <p>Version:{{version}}</p>
-  <app-timer></app-timer>
-  <div class="buttons">
-    <div class="user-info" *ngIf="user; else login">
+<div class="app">
+  <div class="app__version-timer-username">
+    <p>Version:{{version}}</p>
+    <app-timer></app-timer>
+    <div class="app__user-info" *ngIf="user; else login">
       <span>
         Hello, {{user.email}}!
       </span>
-      <button mat-raised-button type="submit" (click)="signOut()" [disabled]="loading">
+      <button mat-raised-button type="submit" (click)="signOut()" [disabled]="isButtonDisabled()">
         {{loading ? "Signing out" : "SignOut"}}
       </button>
     </div>
-    <ng-template #login>
-      <button mat-raised-button type="button" (click)="openDialog()">Login</button>
-    </ng-template>
-    <button mat-raised-button type="button" (click)="startNewGame()">Start New Game</button>
   </div>
-  <div class="top">
+  <div class="app__buttons">
+    <button type="button" mat-raised-button [disabled]="isButtonDisabled()" (click)="openLeaderBoard()">Open LeaderBoard</button>
+    <button type="button" mat-raised-button [disabled]="isButtonDisabled()" (click)="changeGameMode($event)">Change game mode: {{gameMode ? "3 cards" : "1 card"}}</button>
+    <ng-template #login>
+      <button [disabled]="isButtonDisabled()" mat-raised-button type="button" (click)="openDialog()">Login</button>
+    </ng-template>
+    <button [disabled]="isButtonDisabled()" mat-raised-button type="button" (click)="startNewGame($event)">Start New Game</button>
+  </div>
+  <div class="app__top">
     <app-stack [stackId]="'hiddenStore'"></app-stack>
     <app-stack [stackId]="'shownStore'"></app-stack>
     <app-stack *ngFor="let number of [1,2,3,4]" [stackId]="'final-'+number"></app-stack>
   </div>
-  <div class="bottom">
+  <div class="app__bottom">
     <app-stack *ngFor="let number of [1,2,3,4,5,6,7]" [stackId]="'bottom-'+number"></app-stack>
   </div>
 </div>

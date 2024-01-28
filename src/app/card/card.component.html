@@ -1,7 +1,8 @@
-<div cdkDrag [cdkDragData]="[cardObject]" [cdkDragPreviewContainer]="'global'"
-     (cdkDragStarted)="onDragStart({$event : $event})" [cdkDragDisabled]="canDrag()">
-  <img  #card alt="card" [src]="getSrc()" [class]="getClass()" (dblclick)="sendToFinalStack()"/>
 
-  <app-card *ngIf="nextCard" [cardObject]="nextCard" [index]="index+1"></app-card>
+  <div #card *ngIf="cardObject" [class]="divClass" [id]="cardObject.id" (dblclick)="sendToFinalStack()" >
+    <img  alt="card" [src]="cardObject.srcCasing" class="front" (load)="onCardLoad()"/>
+    <img alt="back" [src]="cardObject.srcBack" class="back"/>
 
 </div>
+<!-- cdkDrag [cdkDragData]="[cardObject]" [cdkDragPreviewContainer]="'global'"
+     (cdkDragStarted)="onDragStart({$event : $event})" [cdkDragDisabled]="dragDisabled()" -->

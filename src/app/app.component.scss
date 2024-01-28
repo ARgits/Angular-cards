@@ -1,25 +1,36 @@
-.main {
+.app {
   display: flex;
   flex-direction: column;
-  margin: 1vh auto;
+  margin: 0 auto;
+  width: fit-content;
 }
 
-.top, .bottom {
+.app__version-timer-username {
   display: flex;
-  flex-direction: row;
   justify-content: space-between;
 }
-.top{
+
+.app__top, .app__bottom {
+  display: flex;
+  flex-direction: row;
+  column-gap: calc(var(--horizontal-margin) * 1);
+}
+
+.app__top {
   margin-bottom: 2vmax;
 }
-.buttons{
+
+.app__buttons {
   display: flex;
   flex-direction: row-reverse;
   justify-content: space-between;
   margin: 5px 0;
+  flex-wrap: wrap;
+  gap: 5px;
 }
-.user-info{
+
+.app__user-info {
   display: flex;
-  column-gap:clamp(5px, 1vh, 20px);
+  column-gap: clamp(5px, 1vh, 20px);
   align-items: center;
 }

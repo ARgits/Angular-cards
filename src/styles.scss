@@ -1,15 +1,60 @@
-/* You can add global styles to this file, and also import other style files */
 body {
   background-color: green;
   margin: 1vh;
   font-family: Roboto, "Helvetica Neue", sans-serif;
 }
-#loginDialog{
+
+#loginDialog {
   padding: 2.5vh 2.5vw;
 }
+
+#victoryDialog {
+  aspect-ratio: 1/1;
+}
+
 :root {
   --card-height: 20vmin;
   --card-width: calc(20vmin / 1.5);
-  --horizontal-margin:1vw;
-  --vertical-margin:1vh
+  --horizontal-margin: 1vw;
+  --vertical-margin: 1vh;
+  --card-vertical-offset: 1vh
+}
+@for $i from 0 through 51 {
+  .card-#{$i}, .empty-#{$i} {
+    top: calc(var(--card-vertical-offset) * 1.5 * $i);
+
+    &:not([class*='bottom-'], .shownStore) {
+      left: calc(var(--horizontal-margin) * $i / 50)
+    }
+  }
+}
+div[class*='card-'], div[class*='empty-'] {
+  position: absolute;
+  &:not([class*='bottom-']) {
+    top: 0;
+  }
+}
+
+div[class*='empty-'] {
+  width: var(--card-width);
+  height: var(--card-height);
+}
+//@for $i from 2 through 3 {
+//  .shownStore.cards3-#{$i}:nth-last-child() {
+//    left: calc(var(--horizontal-margin) * ($i))
+//  }
+//}
+.shownStore{
+  &.cards3-1{
+    left:calc(var(--horizontal-margin) * 1);
+  }
+  &.cards3-2,{
+    left:calc(var(--horizontal-margin) * 2);
+  }
+}
+
+@media (min-aspect-ratio: 9/21) {
+  :root {
+    --card-vertical-offset: 1.5vh
+  }
 }
