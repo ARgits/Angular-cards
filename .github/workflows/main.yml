@@ -1,0 +1,27 @@
+name: 'supabase request'
+on:
+  schedule: 
+    - cron: '15 * * * *'
+jobs:
+  request_api:
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{secrets.supabase-access-token}}
+    steps:
+     - name: Checkout actions
+       uses: actions/checkout@v3
+
+     - name: Supabase setup
+       uses: supabase/setup-cli@v1
+       with:
+         version: latest
+
+     - name: Start Supabase
+       run: supabase start
+
+     - name: Curl cards
+       run: |
+         curl https://${{secrets.SUPABASE_URL}}.supabase.co/storage/v1/object/list/cards \
+         -H 'apiKey: ${{secrets.SUPABASE_API}}
+         -H 'Authorization: Bearer
+              
