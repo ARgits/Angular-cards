@@ -6,7 +6,7 @@ jobs:
   request_api:
     runs-on: ubuntu-latest
     env:
-      SUPABASE_ACCESS_TOKEN: ${{secrets.supabase-access-token}}
+      SUPABASE_ACCESS_TOKEN: ${{secrets.SUPABASE_ACEESS_TOKEN}}
     steps:
      - name: Checkout actions
        uses: actions/checkout@v3
@@ -15,7 +15,10 @@ jobs:
        uses: supabase/setup-cli@v1
        with:
          version: latest
-
+         
+     - name: Init Supabase
+        run: supabase init
+      
      - name: Start Supabase
        run: supabase start
 
