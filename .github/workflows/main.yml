@@ -1,7 +1,7 @@
 name: 'supabase request'
 on:
   schedule: 
-    - cron: '15 * * * *'
+    - cron: '5 * * * *'
 jobs:
   request_api:
     runs-on: ubuntu-latest
@@ -22,6 +22,6 @@ jobs:
      - name: Curl cards
        run: |
          curl https://${{secrets.SUPABASE_URL}}.supabase.co/storage/v1/object/list/cards \
-         -H 'apiKey: ${{secrets.SUPABASE_API}}
-         -H 'Authorization: Bearer
+         -H 'apiKey: ${{secrets.SUPABASE_API}}'
+         -H 'Authorization: Bearer'
               
