@@ -42,7 +42,7 @@ testem.log
 Thumbs.db
 
 #supabase
-environment.ts
+environments/*.ts
 
 #env files
 *.env
