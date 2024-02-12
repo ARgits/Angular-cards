@@ -6,7 +6,7 @@ jobs:
   request_api:
     runs-on: ubuntu-latest
     env:
-      SUPABASE_ACCESS_TOKEN: ${{secrets.SUPABASE_ACCESS_TOKEN}}
+      SUPABASE_ACCESS_TOKEN: sbp_33b56a132debe60f169ed4e7d43d8a900efb3b70
       SUPABASE_URL: ${{secrets.SUPABASE_URL}}
       SUPABASE_KEY: ${{secrets.SUPABASE_KEY}}
     steps:
@@ -26,5 +26,5 @@ jobs:
 
      - name: Curl cards
        run: |
-         curl https://zrzdptljtpgfutrzaqfq.supabase.co/storage/v1/object/list/cards 
+         curl https://zrzdptljtpgfutrzaqfq.supabase.co
               
