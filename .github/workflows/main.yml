@@ -6,7 +6,9 @@ jobs:
   request_api:
     runs-on: ubuntu-latest
     env:
-      SUPABASE_ACCESS_TOKEN: ${{secrets.SUPABASE_ACEESS_TOKEN}}
+      SUPABASE_ACCESS_TOKEN: ${{secrets.SUPABASE_ACCESS_TOKEN}}
+      SUPABASE_URL: ${{secrets.SUPABASE_URL}}
+      SUPABASE_KEY: ${{secrets.SUPABASE_KEY}}
     steps:
      - name: Checkout actions
        uses: actions/checkout@v3
@@ -24,7 +26,6 @@ jobs:
 
      - name: Curl cards
        run: |
-         curl https://${{secrets.SUPABASE_URL}}.supabase.co/storage/v1/object/list/cards \
+         curl https://$SUPABASE_URL.supabase.co/storage/v1/object/list/cards \
          -H 'apiKey: ${{secrets.SUPABASE_API}}'
-         -H 'Authorization: Bearer'
               
