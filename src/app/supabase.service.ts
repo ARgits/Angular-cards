@@ -10,7 +10,6 @@ export class SupabaseService {
 
 
   constructor() {
-    console.log(process)
     this.supabase = createClient(
       environment.supabaseUrl ,
       environment.supabaseKey
